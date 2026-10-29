@@ -28,7 +28,7 @@ def main():
     tc["chat_template"] = (a.src / "chat_template.jinja").read_text(encoding="utf-8")
     (a.out / "tokenizer_config.json").write_text(json.dumps(tc, ensure_ascii=False, indent=2), encoding="utf-8")
     shutil.copy(CARD / "README.md", a.out / "README.md")
-    shutil.copy(CARD / ".gitattributes", a.out / ".gitattributes")
+    shutil.copy(CARD / "hf.gitattributes", a.out / ".gitattributes")  # LFS rules for the Hugging Face repo only
     shutil.copytree(CARD / "assets", a.out / "assets", dirs_exist_ok=True)
     print("wrote", sorted(p.name for p in a.out.iterdir()))
 
