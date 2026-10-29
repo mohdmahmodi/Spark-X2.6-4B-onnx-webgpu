@@ -67,7 +67,7 @@ decorateCode(document);
 function draw() {
   for (const { bench, chart } of multiples) {
     columnChart(chart, [{ bars: bench.scores.map((v, i) => ({ value: v, color: MODEL_COLORS[i], strong: i === 0, text: v.toFixed(1),
-      tip: `${MODELS[i]}: ${v.toFixed(1)}` })) }], { ...niceAxis(Math.max(...bench.scores)), height: 250, gap: 4 });
+      tip: `${MODELS[i]}: ${v.toFixed(1)}` })) }], { ...niceAxis(Math.max(...bench.scores)), height: 230, gap: 3, labelSize: 11 });
   }
 
   columnChart($("acc-chart"), ACCURACY.map((bench) => ({

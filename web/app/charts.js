@@ -31,7 +31,7 @@ function yAxis(root, { left, right, width, y, ticks, label }) {
 }
 
 // Vertical bars. groups: [{ label, sublabel, bars: [{ value, color, text, tip, strong }] }]
-export function columnChart(target, groups, { yMax, ticks, tickLabel = String, height = 360, barWidth = 0, gap = 3 }) {
+export function columnChart(target, groups, { yMax, ticks, tickLabel = String, height = 360, barWidth = 0, gap = 3, labelSize = 0 }) {
   const width = target.clientWidth || 900;
   const labelled = groups.some((g) => g.label);
   const L = 36, R = 4, T = 26, B = labelled ? 56 : 10;
@@ -50,7 +50,7 @@ export function columnChart(target, groups, { yMax, ticks, tickLabel = String, h
       const g = svg("g");
       g.append(svg("rect", { x, y: y(bar.value), width: bw, height: y(0) - y(bar.value), rx: 2, fill: bar.color }));
       g.append(svg("rect", { x, y: T, width: bw, height: y(0) - T, fill: "transparent" }));
-      g.append(svg("text", { x: x + bw / 2, y: y(bar.value) - 8, "text-anchor": "middle", "font-size": perGroup > 2 ? 12.5 : 14,
+      g.append(svg("text", { x: x + bw / 2, y: y(bar.value) - 8, "text-anchor": "middle", "font-size": labelSize || (perGroup > 2 ? 12.5 : 14),
         "font-weight": bar.strong ? 600 : 400, fill: bar.strong ? "var(--text)" : "var(--text-2)", "font-variant-numeric": "tabular-nums" }, bar.text));
       if (bar.tip) withTooltip(g, bar.tip);
       root.append(g);
