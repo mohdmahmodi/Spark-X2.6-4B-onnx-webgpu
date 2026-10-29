@@ -63,26 +63,27 @@ a:hover { text-decoration-color: currentColor; }
 .btn .icon { width: 16px; height: 16px; }
 
 /* hero */
-.hero { max-width: var(--wide); margin: 0 auto; padding: 120px 32px 0; }
+.hero { max-width: var(--wide); margin: 0 auto; padding: 120px 32px 0; text-align: center; }
 .eyebrow { font-size: 14px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-2); }
 .hero h1 { margin-top: 18px; font-size: clamp(56px, 10vw, 128px); font-weight: 700; line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase; }
 .hero .tagline { margin-top: 18px; font-family: var(--display); font-size: clamp(18px, 2.2vw, 24px); font-weight: 500; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text); }
 /* the copy block is as wide as the title; the lead paragraph fills that width instead of setting it */
-.hero-copy { width: fit-content; max-width: 100%; }
+.hero-copy { width: fit-content; max-width: 100%; margin: 0 auto; }
 .hero .lead { width: 0; min-width: 100%; margin-top: 28px; font-size: 18px; line-height: 1.65; color: var(--text-2); }
-.hero .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
+.hero .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 40px; }
 .byline { margin-top: 28px; font-family: var(--display); font-size: 13.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
 .byline a { color: var(--text-2); text-decoration: none; }
 .byline a:hover { color: var(--text); }
 
 /* article column */
 .article { max-width: var(--wide); margin: 0 auto; padding: 0 32px 120px; }
-.article > * { max-width: var(--measure); }
+.article > * { max-width: var(--measure); margin-left: auto; margin-right: auto; }
 .article > .wide { max-width: none; }
+.article h2, .article > h3, .article h2 + p { text-align: center; }
 .article h2 { margin-top: 112px; font-size: clamp(28px, 3.2vw, 38px); font-weight: 700; line-height: 1.05; letter-spacing: 0.02em; text-transform: uppercase; }
 .article h3 { margin-top: 44px; font-family: var(--display); font-size: 21px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-.article p { margin: 20px 0 0; color: var(--text-2); }
+.article p { margin: 20px auto 0; color: var(--text-2); }
 .article p strong { color: var(--text); font-weight: 600; }
 .article ul { padding-left: 1.2em; color: var(--text-2); }
 .article li { margin: 10px 0; }
@@ -91,8 +92,8 @@ a:hover { text-decoration-color: currentColor; }
 /* figures */
 .figure-block { margin-top: 56px; }
 .figure-block > img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
-figcaption { margin-top: 14px; font-size: 14px; line-height: 1.55; color: var(--text-3); }
-.key-numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 64px 0 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+figcaption { max-width: var(--measure); margin: 14px auto 0; font-size: 14px; line-height: 1.55; color: var(--text-3); text-align: center; }
+.key-numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 64px auto 56px; text-align: center; padding-top: 28px; border-top: 1px solid var(--line); }
 .key-numbers .label { font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
 .key-numbers .value { margin: 6px 0 2px; font-size: 40px; font-weight: 600; line-height: 1.05; color: var(--text); font-variant-numeric: tabular-nums; }
 .key-numbers .value small { margin-left: 5px; font-size: 16px; font-weight: 500; color: var(--text-2); }
@@ -106,7 +107,7 @@ figcaption { margin-top: 14px; font-size: 14px; line-height: 1.55; color: var(--
 .legend i { width: 14px; height: 14px; border-radius: 2px; }
 .multiples { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 36px; }
 .multiples.pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 56px; }
-.multiples h3 { margin: 0; font-size: 16px; }
+.multiples h3 { margin: 0; font-size: 16px; text-align: left; }
 .multiples .task { margin: 2px 0 8px; font-size: 13.5px; color: var(--text-3); }
 .tooltip { position: fixed; z-index: 10; padding: 6px 10px; border-radius: 6px; background: var(--surface-3); color: var(--text); font-size: 13px;
   white-space: nowrap; pointer-events: none; opacity: 0; }
