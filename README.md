@@ -59,6 +59,8 @@ models of similar size, with thinking on at high effort. Not re-run here; this b
 
 ![Model quality, reported by XHToken](model-card/assets/quality.png)
 
+![All 30 benchmarks, reported by XHToken](model-card/assets/results.png)
+
 ## Accuracy of this build
 
 Measured in Chrome on WebGPU against the original model in transformers, on identical prompts, chat template and

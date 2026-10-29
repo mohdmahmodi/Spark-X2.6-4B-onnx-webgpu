@@ -31,17 +31,17 @@ function yAxis(root, { left, right, width, y, ticks, label }) {
 }
 
 // Vertical bars. groups: [{ label, sublabel, bars: [{ value, color, text, tip, strong }] }]
-export function columnChart(target, groups, { yMax, ticks, tickLabel = String, height = 360, barWidth = 0 }) {
+export function columnChart(target, groups, { yMax, ticks, tickLabel = String, height = 360, barWidth = 0, gap = 3 }) {
   const width = target.clientWidth || 900;
-  const L = 44, R = 8, T = 30, B = 56;
+  const labelled = groups.some((g) => g.label);
+  const L = 36, R = 4, T = 26, B = labelled ? 56 : 10;
   const y = (v) => T + (1 - v / yMax) * (height - T - B);
   const root = svg("svg", { viewBox: `0 0 ${width} ${height}`, role: "img" });
   yAxis(root, { left: L, right: R, width, y, ticks, label: tickLabel });
 
   const slot = (width - L - R) / groups.length;
   const perGroup = groups[0].bars.length;
-  const gap = 3;
-  const bw = barWidth || Math.min(64, (slot * 0.72 - gap * (perGroup - 1)) / perGroup);
+  const bw = barWidth || Math.min(64, (slot * 0.86 - gap * (perGroup - 1)) / perGroup);
   groups.forEach((group, gi) => {
     const groupWidth = perGroup * bw + (perGroup - 1) * gap;
     const x0 = L + gi * slot + (slot - groupWidth) / 2;
@@ -56,7 +56,7 @@ export function columnChart(target, groups, { yMax, ticks, tickLabel = String, h
       root.append(g);
     });
     const cx = L + gi * slot + slot / 2;
-    root.append(svg("text", { x: cx, y: height - 30, "text-anchor": "middle", "font-size": 13.5, "font-weight": 500, fill: "var(--text)" }, group.label));
+    if (group.label) root.append(svg("text", { x: cx, y: height - 30, "text-anchor": "middle", "font-size": 13.5, "font-weight": 500, fill: "var(--text)" }, group.label));
     if (group.sublabel) root.append(svg("text", { x: cx, y: height - 11, "text-anchor": "middle", "font-size": 12.5, fill: "var(--text-3)" }, group.sublabel));
   });
   target.replaceChildren(root);

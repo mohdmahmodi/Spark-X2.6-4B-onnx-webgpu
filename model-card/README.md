@@ -44,6 +44,8 @@ that checkpoint.
 
 ![Model quality, reported by XHToken](assets/quality.png)
 
+![All 30 benchmarks, reported by XHToken](assets/results.png)
+
 ## Accuracy of this build
 
 Measured in Chrome on WebGPU against the original model in transformers, on identical prompts, chat template and

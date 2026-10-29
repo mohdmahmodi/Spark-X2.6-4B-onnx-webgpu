@@ -3,10 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#000000" />
-    <title>Spark-X2.6-4B in the browser: benchmarks</title>
-    <meta name="description" content="Model quality, accuracy against the original and speed of Spark-X2.6-4B running in the browser on WebGPU." />
+    <meta name="color-scheme" content="light" />
+    <title>Spark-X2.6-4B, now in your browser</title>
+    <meta name="description" content="Spark-X2.6-4B runs on WebGPU in Chrome and Edge as a 4-bit ONNX build. It matches the official INT4 model on every check and generates about 90 tokens per second on a desktop GPU." />
+    <link rel="canonical" href="https://mohdmahmodi-spark-x2-6-webgpu.static.hf.space/benchmarks.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Spark-X2.6-4B, now in your browser" />
+    <meta property="og:description" content="A 4-bit WebGPU build of Spark-X2.6-4B that matches the official INT4 model, at about 90 tokens per second." />
+    <meta property="og:image" content="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU/resolve/main/assets/hero.png" />
+    <meta property="og:url" content="https://mohdmahmodi-spark-x2-6-webgpu.static.hf.space/benchmarks.html" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@mohdmahmodi" />
+    <meta name="author" content="Mohd Mahmodi" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
@@ -19,133 +27,141 @@
   <body>
     <div class="page">
       <section id="social" aria-hidden="true">
-        <h1>Spark-X2.6-4B<br />in the browser</h1>
-        <p>Runs on WebGPU with the same benchmark scores as the official INT4 model.</p>
-        <div class="figures" data-figures></div>
+        <div class="post-meta">Open weights, running on WebGPU</div>
+        <h1>Spark-X2.6-4B,<br />now in your browser</h1>
+        <p>Same scores as the official INT4 model, about 90 tokens per second, nothing to install.</p>
+        <div class="key-numbers" data-figures></div>
       </section>
 
       <nav class="nav">
-        <div class="container">
+        <div class="nav-inner">
           <a class="name" href="./">Spark-X2.6-4B</a>
-          <a class="hide-sm" href="#quality">Quality</a>
-          <a class="hide-sm" href="#accuracy">Accuracy</a>
+          <a class="hide-sm" href="#compare">Benchmarks</a>
           <a class="hide-sm" href="#speed">Speed</a>
           <a class="hide-sm" href="#start">Get started</a>
           <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu">GitHub</a>
         </div>
       </nav>
 
-      <main class="container">
-        <header>
-          <div class="intro">
-            <div>
-              <h1>Spark-X2.6-4B in the browser</h1>
-              <p>
-                A 4-bit ONNX build of Spark-X2.6-4B that runs entirely on the GPU in Chrome or Edge, with no server and no install.
-                It scores the same as XHToken's official INT4 model on math, function calling and long-context retrieval.
-              </p>
-              <div class="actions">
-                <a class="btn btn-primary" href="./">Open chat<svg class="icon"><use href="assets/icons.svg#arrow-right" /></svg></a>
-                <a class="btn" href="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU">Model files</a>
-              </div>
-            </div>
-            <figure class="preview"><img src="assets/chat-preview.png" width="1400" height="900" alt="The chat app answering a coding question" /></figure>
+      <article class="article">
+        <header class="post-header">
+          <div class="post-meta">October 29, 2026</div>
+          <h1>Spark-X2.6-4B, now in your browser</h1>
+          <p class="dek">
+            A 4-bit build of XHToken's Spark-X2.6-4B that runs on WebGPU in Chrome and Edge. It matches the official INT4 model on every
+            check we ran and generates about 90 tokens per second on a desktop GPU.
+          </p>
+          <div class="byline">
+            <b>Mohd Mahmodi</b>
+            <a href="https://github.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#github" /></svg>mohdmahmodi</a>
+            <a href="https://x.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#brand-x" /></svg>@mohdmahmodi</a>
           </div>
-          <div class="figures" data-figures></div>
+          <div class="actions">
+            <a class="btn btn-primary" href="./">Try it in your browser<svg class="icon"><use href="assets/icons.svg#arrow-right" /></svg></a>
+            <a class="btn" href="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU"><svg class="icon"><use href="assets/icons.svg#huggingface" /></svg>Model</a>
+            <a class="btn" href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu"><svg class="icon"><use href="assets/icons.svg#github" /></svg>Source</a>
+          </div>
         </header>
 
-        <section class="section" id="quality">
-          <div class="section-head">
-            <h2>Model quality</h2>
-            <p>
-              Spark-X2.6-4B against models of similar size, as reported by XHToken for the original model, with thinking on at high effort.
-              This build runs the official INT4 weights of the same model.
-            </p>
-          </div>
-          <div class="panel-title"><h3>Average across 30 benchmarks</h3><span>higher is better</span></div>
-          <div class="hbars large" id="quality-average"></div>
-          <div class="small-multiples" id="quality-grid"></div>
-          <details class="data">
-            <summary>Show all 30 benchmarks</summary>
-            <div class="table-wrap"><table id="quality-table"></table></div>
-            <p class="footnote">* Taken by XHToken from that model's published card. Blank: not reported. Source: the Spark-X2.6-4B model card on Hugging Face.</p>
-          </details>
-          <p class="shot-only shot-footer">Reported by XHToken for Spark-X2.6-4B, thinking on at high effort. huggingface.co/XHToken/Spark-X2.6-4B</p>
-        </section>
+        <figure class="figure-block wide">
+          <img src="assets/chat-preview.png" width="2880" height="1800" alt="The chat app answering a coding question with thinking on" />
+          <figcaption>The chat app answering a coding question with thinking on. Everything runs on the local GPU.</figcaption>
+        </figure>
 
-        <section class="section" id="accuracy">
-          <div class="section-head">
-            <h2>Same scores as the official model</h2>
-            <p>
-              The browser build measured against the original model in transformers, on the same prompts, chat template and greedy
-              decoding, with thinking off. It matches the official INT4 checkpoint on every benchmark.
-            </p>
-          </div>
-          <div class="legend" id="acc-legend"></div>
+        <div class="key-numbers" data-figures></div>
+
+        <p>
+          Spark-X2.6-4B is a 4-billion-parameter model from XHToken, built for on-device agents: tool use, coding, long context, and
+          reasoning with a thinking budget you can turn up, down or off. This release packages the official INT4 checkpoint as ONNX for
+          onnxruntime-web, so the model runs in a browser tab with no server, no install and no account. Nothing typed into the page
+          leaves the device.
+        </p>
+
+        <h2 id="compare">How Spark-X2.6-4B compares</h2>
+        <p>
+          XHToken reports these results for Spark-X2.6-4B against open models of similar size, all with thinking on. Across 30
+          benchmarks it averages <strong>63.3</strong>, ahead of the larger Qwen3.5-9B (49.1) and Gemma4-12B (47.0). The lead is widest
+          on agent work: web browsing, MCP tool use and software engineering.
+        </p>
+
+        <figure class="figure-block wide" id="quality">
+          <h2 class="shot-only shot-title">How Spark-X2.6-4B compares</h2>
+          <div class="multiples" id="quality-grid"></div>
+          <div class="legend" id="quality-legend"></div>
+          <figcaption>Reported by XHToken for the original Spark-X2.6-4B, thinking on at high effort. Source: the Spark-X2.6-4B model card on Hugging Face.</figcaption>
+        </figure>
+
+        <h3>All 30 benchmarks</h3>
+        <figure class="figure-block wide" id="results">
+          <h2 class="shot-only shot-title">Spark-X2.6-4B benchmark results</h2>
+          <div class="table-wrap"><table class="results" id="quality-table"></table></div>
+          <figcaption>* Taken by XHToken from that model's published card or paper. A dash means not reported. Gaokao 2026 is scored out of 150.</figcaption>
+        </figure>
+
+        <h2 id="accuracy">The browser build scores the same</h2>
+        <p>
+          Quantization and a new runtime can quietly change a model's answers. Every number below comes from the real web page driven by
+          headless Chrome, compared with the original model in transformers on the same prompts, chat template and greedy decoding, with
+          thinking off.
+        </p>
+        <figure class="figure-block wide" id="parity">
+          <h2 class="shot-only shot-title">The browser build scores the same as the official model</h2>
           <div class="chart" id="acc-chart"></div>
-          <p class="footnote">On GSM8K the browser build and the INT4 run disagree on 13 problems in each direction (McNemar p = 1.0).</p>
-          <p class="shot-only shot-footer">Spark-X2.6-4B, q4f16 build in Chrome with WebGPU. github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu</p>
-        </section>
+          <div class="legend" id="acc-legend"></div>
+          <figcaption>Spark-X2.6-4B, q4f16 build in Chrome. GSM8K: all 1,319 test problems. BFCL v3: the first 200 simple function-calling cases. Needle in a haystack: 12 prompts from 1k to 16k tokens.</figcaption>
+        </figure>
+        <p>
+          The browser build matches the official INT4 checkpoint on all three. On GSM8K the two disagree on 13 problems in each
+          direction (McNemar p = 1.0). At the level of individual tokens, the build adds a mean KL divergence of 0.0003 on top of the
+          INT4 quantization, and 30 minutes of back-to-back generation produced no errors and no slowdown.
+        </p>
+        <figure class="figure-block" id="summary">
+          <h2 class="shot-only shot-title">Validation against the original model</h2>
+          <div class="table-wrap"><table class="checks" id="summary-table"></table></div>
+          <figcaption>A check passes when the browser build is not measurably worse than the official INT4 weights in transformers.</figcaption>
+        </figure>
 
-        <section class="section" id="summary">
-          <div class="section-head">
-            <h2>Validation</h2>
-            <p>A check passes when the browser build is not measurably worse than the official INT4 weights in transformers.</p>
-          </div>
-          <div class="table-wrap"><table id="summary-table"></table></div>
-        </section>
-
-        <section class="section" id="speed">
-          <div class="section-head">
-            <h2>Speed</h2>
-            <p>Generation stays fast as the conversation grows. Long prompts take longer to read before the first token appears.</p>
-          </div>
-          <div class="panel-title"><h3>From 21 to 88 tokens per second</h3><span>decode speed at 2,500 tokens of context</span></div>
+        <h2 id="speed">Speed</h2>
+        <p>
+          On a desktop GPU the model generates about <strong>90 tokens per second</strong> and starts answering a short prompt in under
+          100 ms. Generation slows gently as the conversation grows, to 69 tokens per second at 16,000 tokens of context. Long prompts
+          take longer to read before the first token: 1.7 seconds for 2,500 tokens.
+        </p>
+        <figure class="figure-block wide" id="history">
+          <h2 class="shot-only shot-title">From 21 to 88 tokens per second</h2>
           <div class="chart" id="history-chart"></div>
-          <div class="split">
-            <div>
-              <div class="panel-title"><h3>Decode speed</h3><span>tokens per second</span></div>
-              <div class="chart" id="tps-chart"></div>
-            </div>
-            <div>
-              <div class="panel-title"><h3>Time to first token</h3><span>seconds</span></div>
-              <div class="chart" id="ttft-chart"></div>
-            </div>
+          <figcaption>Decode speed at 2,500 tokens of context after each change. The two largest steps came from keeping the KV cache in one GPU buffer that is updated in place, and from running the 4-bit matrix multiplies on float inputs.</figcaption>
+        </figure>
+        <figure class="figure-block wide" id="speed-lines">
+          <div class="multiples pair">
+            <div><h3>Decode speed</h3><p class="task">tokens per second</p><div class="chart" id="tps-chart"></div></div>
+            <div><h3>Time to first token</h3><p class="task">seconds</p><div class="chart" id="ttft-chart"></div></div>
           </div>
-          <p class="footnote">Measured in Chrome on Windows with an NVIDIA RTX 3090 Ti, one request at a time. Speed depends on the GPU.</p>
-        </section>
+          <figcaption>Measured in Chrome on Windows with an NVIDIA RTX 3090 Ti, one request at a time. Speed depends on the GPU.</figcaption>
+        </figure>
 
-        <section class="section" id="start">
-          <div class="section-head">
-            <h2>Get started</h2>
-            <p>The model is a folder of static files and the loader is a few JavaScript modules. There is no build step and no server code.</p>
-          </div>
-          <ol class="steps">
-            <li>
-              <div>
-                <h3>Chat in the browser</h3>
-                <p>Open the <a href="./">chat</a> in desktop Chrome or Edge. The model downloads once (2.77 GB) and loads from the browser cache afterwards.</p>
-              </div>
-            </li>
-            <li>
-              <div>
-                <h3>Run it locally</h3>
-                <p>Serve the app from a clone. It loads the model from Hugging Face unless a local build exists.</p>
-              </div>
-              <pre><code class="language-bash">git clone https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu
+        <h2 id="start">Get started</h2>
+        <p>The model is a folder of static files and the loader is a few JavaScript modules, with no build step and no server code.</p>
+        <ol class="steps">
+          <li>
+            <h3>Chat in the browser</h3>
+            <p>Open the <a href="./">chat</a> in desktop Chrome or Edge. The model downloads once (2.77 GB) and loads from the browser cache afterwards.</p>
+          </li>
+          <li>
+            <h3>Run it locally</h3>
+            <p>Serve the app from a clone. It loads the model from Hugging Face unless a local build exists.</p>
+            <pre><code class="language-bash">git clone https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu
 cd Spark-X2.6-4B-onnx-webgpu
 npm install
 npm run serve</code></pre>
-            </li>
-            <li>
-              <div>
-                <h3>Use it in your own app</h3>
-                <p>
-                  Copy <code>web/lib/</code> and the import map from <code>web/index.html</code>. <code>generate</code> streams text and accepts
-                  <code>temperature</code>, <code>maxNewTokens</code>, <code>effort</code>, <code>tools</code> and an abort <code>signal</code>.
-                </p>
-              </div>
-              <pre><code class="language-javascript">import { loadSpark } from "./lib/spark.js";
+          </li>
+          <li>
+            <h3>Use it in your own app</h3>
+            <p>
+              Copy <code>web/lib/</code> and the import map from <code>web/index.html</code>. <code>generate</code> streams text and accepts
+              <code>temperature</code>, <code>maxNewTokens</code>, <code>effort</code>, <code>tools</code> and an abort <code>signal</code>.
+            </p>
+            <pre><code class="language-javascript">import { loadSpark } from "./lib/spark.js";
 
 const spark = await loadSpark({
   base: "https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU/resolve/main",
@@ -155,46 +171,38 @@ const messages = [{ role: "user", content: "Hello!" }];
 for await (const text of spark.generate(messages, { thinking: false })) {
   output.textContent += text;
 }</code></pre>
-            </li>
-          </ol>
-        </section>
+          </li>
+        </ol>
 
-        <section class="section" id="requirements">
-          <div class="section-head"><h2>Requirements</h2></div>
-          <dl class="defs">
-            <div><dt>Browser</dt><dd>Chrome or Edge 113 or later on desktop, with WebGPU. GPUs without <code>shader-f16</code> load the fp32-activation build automatically.</dd></div>
-            <div><dt>GPU memory</dt><dd>About 3.5 GB at 4k tokens of context: 2.77 GB of weights and 0.6 GB of cache per 4k tokens.</dd></div>
-            <div><dt>Buffer size</dt><dd>At least 336 MB per storage buffer, for the embedding table. Many phones and older GPUs allow less.</dd></div>
-            <div><dt>Not supported</dt><dd>The WebAssembly (CPU) backend in browsers, which has no kernel for the quantized embedding.</dd></div>
-          </dl>
-        </section>
+        <h2 id="built">How it is built</h2>
+        <p>
+          The export writes the ONNX graph operator by operator from the checkpoint, using the fused kernels onnxruntime-web ships for
+          WebGPU: grouped-query attention with a 512-token sliding window on 27 of the 36 layers, fused RMSNorm, and 4-bit matrix
+          multiplies. The weights are XHToken's own INT4 codes, repacked without change, so the browser build runs the same quantized model
+          the official checkpoint does. Round-to-nearest 4-bit was tried first and was far less accurate on this model.
+        </p>
+        <p>
+          The KV cache stays on the GPU in one buffer per layer, and a follow-up message reuses the cached conversation instead of reading
+          it again. The <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu">source</a> includes the export, the loader, the
+          chat app and the full validation suite.
+        </p>
 
-        <section class="section" id="method">
-          <div class="section-head">
-            <h2>Method</h2>
-            <p>Every browser number comes from the real page driven by headless Chrome, with token ids checked against transformers on every prompt.</p>
-          </div>
-          <dl class="defs">
-            <div><dt>Reference</dt><dd>XHToken/Spark-X2.6-4B in transformers (bf16), and the official Spark-X2.6-4B-INT4 weights in transformers.</dd></div>
-            <div><dt>GSM8K</dt><dd>All 1,319 test problems, zero-shot, thinking off, scored on the final number.</dd></div>
-            <div><dt>Function calling</dt><dd>The first 200 "simple" cases of BFCL v3, in Spark's tool-call format, parsed with the rules of SGLang's spark25 parser.</dd></div>
-            <div><dt>Long context</dt><dd>A passphrase placed at the start, middle or end of 1k, 4k, 8k and 16k tokens of Wikipedia text.</dd></div>
-            <div><dt>Logits</dt><dd>20 prompts at 8 positions each. The build adds a mean KL divergence of 0.0003 on top of the INT4 quantization.</dd></div>
-            <div><dt>Stability</dt><dd>30 minutes of back-to-back generations: 683 replies and 122,745 tokens with no errors, no slowdown and flat GPU memory.</dd></div>
-            <div><dt>Model quality</dt><dd>The comparison with other models is XHToken's, measured on the original model with thinking on. It was not re-run here.</dd></div>
-            <div><dt>Not yet covered</dt><dd>macOS, Android, other GPUs, and benchmarks with thinking on for this build.</dd></div>
-            <div><dt>Full report</dt><dd>Per-system tables, the largest divergences side by side, and scripts to reproduce every number: <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu/blob/main/docs/VALIDATION.md">VALIDATION.md</a>.</dd></div>
-          </dl>
-        </section>
+        <h2 id="limits">Limitations</h2>
+        <ul>
+          <li>It needs WebGPU on a desktop browser, about 3.5 GB of free GPU memory at 4k tokens of context, and a 336 MB storage-buffer limit. Many phones and older GPUs fall short of the buffer limit.</li>
+          <li>The browser's WebAssembly (CPU) backend cannot run this graph: it has no kernel for the quantized embedding.</li>
+          <li>Testing so far covers Windows with an NVIDIA RTX 3090 Ti. macOS, Android and other GPUs are untested.</li>
+          <li>The comparison with other models is XHToken's, measured on the original model with thinking on. It was not re-run for this build. The <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu/blob/main/docs/VALIDATION.md">validation report</a> covers what was.</li>
+        </ul>
+      </article>
 
-        <footer class="footer">
-          <span class="author">Mohd Mahmodi</span>
-          <a href="https://github.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#github" /></svg>GitHub</a>
-          <a href="https://x.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#brand-x" /></svg>@mohdmahmodi</a>
-          <a href="https://huggingface.co/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#huggingface" /></svg>Hugging Face</a>
-          <span>Spark-X2.6-4B is developed by XHToken and released under Apache-2.0.</span>
-        </footer>
-      </main>
+      <footer class="footer">
+        <span class="author">Mohd Mahmodi</span>
+        <a href="https://github.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#github" /></svg>GitHub</a>
+        <a href="https://x.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#brand-x" /></svg>@mohdmahmodi</a>
+        <a href="https://huggingface.co/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#huggingface" /></svg>Hugging Face</a>
+        <span>Spark-X2.6-4B is developed by XHToken and released under Apache-2.0.</span>
+      </footer>
     </div>
     <div class="tooltip" id="tooltip" role="tooltip"></div>
   </body>

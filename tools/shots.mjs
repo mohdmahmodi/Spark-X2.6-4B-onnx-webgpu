@@ -22,12 +22,12 @@ page.on("pageerror", (e) => console.log("[pageerror]", e.message));
 await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: a.theme }]);
 
 if (a.only !== "chat") {
-  // id in benchmarks.html -> file name, theme. Charts use the light theme, like most model cards.
-  const shots = [["social", "hero", "dark"], ["quality", "quality", "light"], ["accuracy", "accuracy", "light"], ["speed", "speed", "light"],
-    ["summary", "summary", "light"]];
-  for (const [id, file, theme] of shots) {
+  // element id in benchmarks.html -> file name in model-card/assets/
+  const shots = [["social", "hero"], ["quality", "quality"], ["results", "results"], ["parity", "accuracy"], ["history", "speed"],
+    ["summary", "summary"]];
+  for (const [id, file] of shots) {
     await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 2 });
-    await page.goto(`${a.url}benchmarks.html?shot=${id}&theme=${theme}`);
+    await page.goto(`${a.url}benchmarks.html?shot=${id}`);
     await page.waitForSelector("body[data-ready]");
     const node = await page.$(`#${id}`);
     await node.screenshot({ path: `${a.out}/${file}.png` });

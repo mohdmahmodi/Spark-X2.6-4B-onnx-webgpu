@@ -7,6 +7,8 @@
 // Everything else was measured on this build: docs/VALIDATION.md and export/tests/results/decode_vs_context.json.
 
 export const MODELS = ["Spark-X2.6-4B", "Spark-X2.5-4B", "Qwen3.5-9B", "Qwen3.5-4B", "Gemma4-12B", "Gemma4-E4B"];
+// bar colors from XHToken's own charts, so the figures read the same as the model card
+export const MODEL_COLORS = ["#f87d19", "#ffdd71", "#2959d3", "#bedcf7", "#858a91", "#c4c4c4"];
 
 export const QUALITY = [
   { name: "BFCL-V4", task: "Function calling", scores: [71.8, 65.1, 66.1, 50.3, 37.4, 47.0] },
