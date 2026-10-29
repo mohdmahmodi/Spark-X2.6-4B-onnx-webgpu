@@ -85,6 +85,7 @@ export async function webgpuInfo() {
   return {
     adapter,
     f16: adapter.features.has("shader-f16"),
+    maxBuffer: adapter.limits.maxBufferSize,
     maxBinding: Math.min(adapter.limits.maxStorageBufferBindingSize, adapter.limits.maxBufferSize),
     name: [info.vendor, info.architecture, info.description].filter(Boolean).join(" ") || "unknown",
   };
@@ -149,9 +150,11 @@ export async function loadSpark({ base = "./spark", variant, staticKV = true, on
   if (!v) throw new Error(`variant ${variant} not exported (have: ${Object.keys(meta.variants)})`);
   const kvType = v.activations ?? (variant.endsWith("16") ? "float16" : "float32");
   if (kvType === "float16" && !gpu.f16) throw new Error("This GPU has no shader-f16; use the q4 variant (?variant=q4).");
-  // the int8 tied embedding / lm_head is one 335 MB tensor: it must fit in a single storage binding
-  if (v.max_tensor_bytes && gpu.maxBinding < v.max_tensor_bytes)
-    throw new Error(`This GPU allows ${(gpu.maxBinding / 1e6).toFixed(0)} MB per buffer; the model needs ${(v.max_tensor_bytes / 1e6).toFixed(0)} MB.`);
+  // Every weight tensor is one GPU buffer, so the largest (the 335 MB int8 embedding / lm_head) must fit in
+  // maxBufferSize. maxStorageBufferBindingSize may be smaller: onnxruntime binds a larger buffer in several
+  // pieces (checked down to 128 MiB, the WebGPU default, with identical outputs).
+  if (v.max_tensor_bytes && gpu.maxBuffer < v.max_tensor_bytes)
+    throw new Error(`This GPU allows ${(gpu.maxBuffer / 1e6).toFixed(0)} MB per buffer; the model needs ${(v.max_tensor_bytes / 1e6).toFixed(0)} MB.`);
 
   const [chat, gen] = await Promise.all([loadChat(base), fetch(`${base}/generation_config.json`).then((r) => r.json())]);
 
@@ -186,6 +189,12 @@ export async function loadSpark({ base = "./spark", variant, staticKV = true, on
   const emptyKV = () =>
     new ort.Tensor(kvType, kvType === "float16" ? new Uint16Array(0) : new Float32Array(0), [1, meta.kv_heads, 0, meta.head_dim]);
   const eos = new Set([gen.eos_token_id ?? meta.eos_token_id].flat());
+  // The largest activation of a prefill is the MLP intermediate, [S, intermediate_size]. Where a long prompt would
+  // make it larger than one storage binding (phones report 128 MiB), the prompt goes in pieces that fit: split
+  // bindings returned zeros for the 671 MB fp32 intermediate of a 16k prompt. With a 2 GB binding limit (Windows
+  // desktops) a prompt is never split.
+  const actBytes = (meta.intermediate_size ?? 0) * (kvType === "float16" ? 2 : 4);
+  const prefillChunk = actBytes ? Math.max(256, Math.floor(gpu.maxBinding / actBytes / 256) * 256) : Infinity;
   const device = await ort.env.webgpu.device;
   const kv = staticKV ? new StaticKV(device, kvNames, meta.kv_heads, meta.head_dim, kvType) : null;
   // Token ids whose K/V currently sit at positions 0..n-1 of the static cache. A new prompt that
@@ -214,6 +223,7 @@ export async function loadSpark({ base = "./spark", variant, staticKV = true, on
       forced,
       onLogits,
       reuse = true,
+      chunk = prefillChunk,
     } = opts;
     const start = performance.now();
     if (lost) throw new Error(`WebGPU device was lost (${lost.reason}: ${lost.message}); reload the page.`);
@@ -231,25 +241,31 @@ export async function loadSpark({ base = "./spark", variant, staticKV = true, on
     stats.reusedTokens = pos;
     let input = prompt.slice(pos);
     let tFirst = 0;
+    // one forward pass over `ids`, appending their K/V to the cache
+    const forward = async (ids) => {
+      const total = pos + ids.length;
+      const feeds = {
+        input_ids: new ort.Tensor("int64", BigInt64Array.from(ids, BigInt), [1, ids.length]),
+        attention_mask: new ort.Tensor("int64", new BigInt64Array(total).fill(1n), [1, total]),
+      };
+      let out;
+      if (kv) {
+        out = await session.run({ ...feeds, ...kv.feeds() }, kv.fetches());
+      } else {
+        out = await session.run({ ...feeds, ...past });
+        for (const tsr of Object.values(past)) if (tsr.location === "gpu-buffer") tsr.dispose();
+        past = Object.fromEntries(kvNames.map((n) => [`past_key_values.${n}`, out[`present.${n}`]]));
+      }
+      pos = total;
+      if (kv) cached.push(...ids);
+      return out;
+    };
     try {
       for (let step = 0; step < maxNewTokens; step++) {
         if (signal?.aborted) break;
-        const total = pos + input.length;
         const t = performance.now();
-        const feeds = {
-          input_ids: new ort.Tensor("int64", BigInt64Array.from(input, BigInt), [1, input.length]),
-          attention_mask: new ort.Tensor("int64", new BigInt64Array(total).fill(1n), [1, total]),
-        };
-        let out;
-        if (kv) {
-          out = await session.run({ ...feeds, ...kv.feeds() }, kv.fetches());
-        } else {
-          out = await session.run({ ...feeds, ...past });
-          for (const tsr of Object.values(past)) if (tsr.location === "gpu-buffer") tsr.dispose();
-          past = Object.fromEntries(kvNames.map((n) => [`past_key_values.${n}`, out[`present.${n}`]]));
-        }
-        pos = total;
-        if (kv) cached.push(...input);
+        for (; input.length > chunk; input = input.slice(chunk)) (await forward(input.slice(0, chunk))).logits.dispose?.();
+        const out = await forward(input);
         onLogits?.(step, out.logits.data);
         let next = sample(out.logits.data, temperature, topP, topK);
         out.logits.dispose?.();

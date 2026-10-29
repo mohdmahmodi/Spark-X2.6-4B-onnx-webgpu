@@ -425,13 +425,14 @@ def main():
         "weights": a.weights if a.variant.startswith("q") else a.variant,
         "activations": "float16" if a.variant.endswith("16") else "float32",
         "fp32_residual": a.fp32_residual,
-        "max_tensor_bytes": max(map(ext_len, model.graph.initializer)),  # must fit one WebGPU storage binding
+        "max_tensor_bytes": max(map(ext_len, model.graph.initializer)),  # must fit one WebGPU buffer (maxBufferSize)
         "bytes": sum(sizes.values()),
         # content id of this build: the page versions its download cache with it
         "build": hashlib.sha256((out / name).read_bytes() + b"".join(str(sizes[f]).encode() for f in files)).hexdigest()[:16],
     }
     meta.update(model=a.src.name, layers=cfg["num_hidden_layers"], kv_heads=cfg["num_key_value_heads"], head_dim=cfg["head_dim"],
-                max_position=MAX_POS, eos_token_id=cfg["eos_token_id"])
+                max_position=MAX_POS, eos_token_id=cfg["eos_token_id"],
+                intermediate_size=cfg["intermediate_size"])  # sizes the prefill pieces on small-binding GPUs
     meta_path.write_text(json.dumps(meta, indent=2))
 
 

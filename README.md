@@ -47,7 +47,7 @@ repository.
 |---|---|
 | Browser | Chrome or Edge 113+ on desktop. GPUs without `shader-f16` get the fp32-activation build automatically |
 | GPU memory | about 3.5 GB at 4k tokens of context (2.77 GB weights + 0.6 GB KV cache per 4k tokens) |
-| Storage buffer binding | at least 336 MB (the int8 embedding table) |
+| GPU buffer size | `maxBufferSize` of at least 336 MB (the int8 embedding table). The storage-buffer binding limit can be lower: onnxruntime binds larger buffers in pieces, checked down to the 128 MB WebGPU default |
 | Runtime | WebGPU only in the browser. The WASM (CPU) backend of onnxruntime-web has no kernel for the quantized embedding (`GatherBlockQuantized`), so it cannot load this graph. The same files run with native onnxruntime on CPU (used in the validation). |
 
 URL options: `?model=<url>` loads the model folder from another location, `?variant=q4` forces the fp32-activation
@@ -158,6 +158,37 @@ for await (const piece of spark.generate(messages, { thinking: false, temperatur
 `topP`, `topK` and `signal` (an `AbortSignal`). `parseToolCalls` from `web/lib/toolcall.js` extracts Spark tool calls
 from the output. Add the import map from `web/index.html`, which pins onnxruntime-web, tokenizers.js and jinja.
 
+### With Transformers.js
+
+The published files also load in Transformers.js 4.3. `config.json` declares `model_type: "qwen3"`: Transformers.js
+has no class for Spark, and its Qwen3 decoder feeds this graph exactly the inputs and KV cache it expects.
+
+```js
+import { pipeline } from "@huggingface/transformers";
+
+const generator = await pipeline("text-generation", "mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU", { device: "webgpu", dtype: "q4f16" });
+const out = await generator([{ role: "user", content: "Explain WebGPU in one sentence." }], {
+  max_new_tokens: 256, do_sample: false, tokenizer_encode_kwargs: { enable_thinking: false },
+});
+console.log(out[0].generated_text.at(-1).content);
+```
+
+The answers are the same as the app's: identical logits, and identical output on all 50 greedy prompts, all 200 BFCL
+cases, all 1,319 GSM8K problems and all 12 needle tests up to 16k tokens. Transformers.js grows its KV cache at every
+step, so decoding slows down as the context grows. Same machine, same run:
+
+| Context | Transformers.js | `web/lib/spark.js` |
+|---|---|---|
+| short prompt | 86 tok/s | 92 tok/s |
+| 1k tokens | 79 tok/s | 91 tok/s |
+| 4k tokens | 18 tok/s | 87 tok/s |
+| 8k tokens | 13 tok/s | 80 tok/s |
+| 16k tokens | 7.8 tok/s | 71 tok/s |
+
+The Transformers.js column uses onnxruntime-web `1.31.0-dev.20260918`, the app's build. 16k-token prompts need that
+build or newer: Transformers.js 4.3.2 bundles an older one that fails on them. With the newer build swapped in, all 12
+needle tests up to 16k tokens pass with output identical to the app's.
+
 ## Repository layout
 
 ```
@@ -205,7 +236,8 @@ Hosting your own copy of the app or model: [docs/HOSTING.md](docs/HOSTING.md).
 - Benchmarks use thinking off; they are not comparable to results measured with thinking on.
 - Two tabs of the app in one Chrome instance can exhaust D3D12 descriptor heaps on Windows ("device lost"). One tab
   per browser works.
-- Many phones and older GPUs have a storage-buffer binding limit below the 336 MB the embedding needs.
+- A browser that allows less than 336 MB per GPU buffer (`maxBufferSize`) cannot load the model. Lower limits were
+  checked by giving the page a device with reduced limits on the same GPU, not on real low-end hardware.
 - Sliding-window layers keep a full-length KV buffer, since the WebGPU attention kernel has no windowed cache. That is
   about 147 KB of GPU memory per token of context.
 

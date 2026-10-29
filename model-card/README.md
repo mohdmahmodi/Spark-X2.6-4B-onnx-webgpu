@@ -8,6 +8,7 @@ tags:
   - onnx
   - webgpu
   - onnxruntime-web
+  - transformers.js
   - in-browser
   - int4
   - spark2_5
@@ -80,7 +81,8 @@ depends on the GPU.
 | `onnx/model_q4.onnx` + `_data`, `_data_1` | GPUs without `shader-f16`: 4-bit weights, fp32 activations, 3.05 GB |
 | `spark.json` | variants, file lists, build ids, cache shapes |
 | `tokenizer.json`, `tokenizer_config.json` | tokenizer, with the official chat template inlined |
-| `config.json`, `generation_config.json`, `LICENSE` | from the original model |
+| `config.json` | the original model's, with `model_type` set to `qwen3` and the external-data file counts, for Transformers.js |
+| `generation_config.json`, `LICENSE` | from the original model |
 
 External data is split into files under 1.9 GB so browsers can fetch them.
 
@@ -99,8 +101,38 @@ External data is split into files under 1.9 GB so browsers can fetch them.
   to the same preallocated GPU buffer for an in-place static KV cache.
 - **Runtime.** onnxruntime-web `1.31.0-dev.20260918-bc8e7ed75` or newer, imported from `onnxruntime-web/webgpu`.
 
-The graph has its own input layout and is not a Transformers.js model. A small loader with the chat template, KV
-cache handling and streaming is in the [source repository](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu):
+### Transformers.js
+
+The files load in Transformers.js 4.3 as they are:
+
+```js
+import { pipeline } from "@huggingface/transformers";
+
+const generator = await pipeline("text-generation", "mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU", { device: "webgpu", dtype: "q4f16" });
+const out = await generator([{ role: "user", content: "Hello!" }], {
+  max_new_tokens: 256, do_sample: false, tokenizer_encode_kwargs: { enable_thinking: false },
+});
+console.log(out[0].generated_text.at(-1).content);
+```
+
+It gives the same results as the loader below: identical logits, and identical output on all 50 greedy prompts, all
+200 BFCL cases and all 1,319 GSM8K problems. It grows its KV cache at every step, so decoding slows down with context.
+In one run on the same machine:
+
+| Context | Transformers.js | Loader below |
+|---|---|---|
+| short prompt | 86 tok/s | 92 tok/s |
+| 1k tokens | 79 tok/s | 91 tok/s |
+| 4k tokens | 18 tok/s | 87 tok/s |
+| 16k tokens | 7.8 tok/s | 71 tok/s |
+
+The Transformers.js column uses onnxruntime-web `1.31.0-dev.20260918`. Prompts of 16k tokens need that build or newer:
+Transformers.js 4.3.2 bundles an older one that fails on them.
+
+### Included loader
+
+The loader in the [source repository](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu) keeps the KV cache in
+one preallocated GPU buffer and handles the chat template and streaming:
 
 ```js
 import { loadSpark } from "./lib/spark.js";
@@ -112,8 +144,9 @@ for await (const piece of spark.generate([{ role: "user", content: "Hello!" }], 
 
 ## Requirements and limitations
 
-- Desktop Chrome or Edge with WebGPU, about 3.5 GB of free GPU memory at 4k tokens of context, and a storage-buffer
-  binding limit of at least 336 MB. Many phones and older GPUs do not meet the binding limit.
+- Desktop Chrome or Edge with WebGPU, about 3.5 GB of free GPU memory at 4k tokens of context, and a WebGPU
+  `maxBufferSize` of at least 336 MB. A lower storage-buffer binding limit works: onnxruntime binds larger buffers in
+  pieces (checked down to the 128 MB default, with identical outputs).
 - Tested on Windows 11 with an RTX 3090 Ti only.
 - The WASM (CPU) backend of onnxruntime-web cannot load the graph: it has no kernel for `GatherBlockQuantized`.
 - Two tabs of the app in one Chrome instance can cause a "device lost" error on Windows; use one tab.

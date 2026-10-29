@@ -12,7 +12,12 @@ const types = {
 };
 
 createServer((req, res) => {
-  const path = normalize(join(root, decodeURIComponent(new URL(req.url, "http://x").pathname)));
+  let path;
+  try {
+    path = normalize(join(root, decodeURIComponent(new URL(req.url, "http://x").pathname)));
+  } catch {
+    return res.writeHead(400).end(); // e.g. "//" or a malformed escape: not a file path
+  }
   if (!path.startsWith(root)) return res.writeHead(403).end();
   let file = path;
   try {

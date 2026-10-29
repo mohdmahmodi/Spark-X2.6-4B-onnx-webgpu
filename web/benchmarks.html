@@ -192,7 +192,7 @@ for await (const text of spark.generate(messages, { thinking: false })) {
 
         <h2 id="limits">Limitations</h2>
         <ul>
-          <li>It needs WebGPU on a desktop browser, about 3.5 GB of free GPU memory at 4k tokens of context, and a 336 MB storage-buffer limit. Many phones and older GPUs fall short of the buffer limit.</li>
+          <li>It needs WebGPU on a desktop browser, about 3.5 GB of free GPU memory at 4k tokens of context, and GPU buffers of at least 336 MB. A lower storage-binding limit works, down to the 128 MB WebGPU default.</li>
           <li>The browser's WebAssembly (CPU) backend cannot run this graph: it has no kernel for the quantized embedding.</li>
           <li>Testing so far covers Windows with an NVIDIA RTX 3090 Ti. macOS, Android and other GPUs are untested.</li>
           <li>The comparison with other models is XHToken's, measured on the original model with thinking on. It was not re-run for this build. The <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu/blob/main/docs/VALIDATION.md">validation report</a> covers what was.</li>
