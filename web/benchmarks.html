@@ -51,8 +51,8 @@
           <h1>Spark-X2.6-4B</h1>
           <div class="tagline">Running in your browser</div>
           <p class="lead">
-          XHToken's 4B model, using its official 4-bit weights, running on the GPU in Chrome and Edge. In testing it scores the same as the
-          official INT4 release and generates about 90 tokens per second on a desktop GPU.
+          XHToken's 4B model, using its official 4-bit weights, running on the GPU in Chrome and Edge. In testing it loses no measurable
+          accuracy against the official INT4 release and generates about 90 tokens per second on a desktop GPU.
           </p>
         </div>
         <div class="actions">
@@ -99,22 +99,24 @@
           <figcaption>* Taken by XHToken from that model's published card or paper. A dash means not reported. Gaokao 2026 is scored out of 150.</figcaption>
         </figure>
 
-        <h2 id="accuracy">The browser build scores the same</h2>
+        <h2 id="accuracy">No measurable accuracy loss</h2>
         <p>
           A different runtime and 4-bit weights can change a model's answers, so the browser build was tested against the original model in
           transformers: same prompts, same chat template, greedy decoding, thinking off. Every browser number comes from the actual web page,
           run in headless Chrome.
         </p>
         <figure class="figure-block wide" id="parity">
-          <h2 class="shot-only shot-title">The browser build scores the same as the official model</h2>
+          <h2 class="shot-only shot-title">The browser build against the original model</h2>
           <div class="chart" id="acc-chart"></div>
           <div class="legend" id="acc-legend"></div>
           <figcaption>Spark-X2.6-4B, q4f16 build in Chrome. GSM8K: all 1,319 test problems. BFCL v3: the first 200 simple function-calling cases. Needle in a haystack: 12 prompts from 1k to 16k tokens.</figcaption>
         </figure>
         <p>
-          The browser build matches the official INT4 checkpoint on all three. On GSM8K the two disagree on 13 problems in each
-          direction (McNemar p = 1.0). At the level of individual tokens, the build adds a mean KL divergence of 0.0003 on top of the
-          INT4 quantization, and 30 minutes of back-to-back generation produced no errors and no slowdown.
+          The browser build is within measurement noise of the official INT4 checkpoint on all three. On GSM8K it solves 1,194
+          problems to the checkpoint's 1,203 and the original model's 1,198 (22 and 13 disagreements with the checkpoint, McNemar
+          p = 0.18); function calling and needle in a haystack score the same. At the level of individual tokens, the build adds a
+          mean KL divergence of 0.00055 on top of the INT4 quantization, and 30 minutes of back-to-back generation produced no
+          errors and no slowdown.
         </p>
         <figure class="figure-block" id="summary">
           <h2 class="shot-only shot-title">Validation against the original model</h2>

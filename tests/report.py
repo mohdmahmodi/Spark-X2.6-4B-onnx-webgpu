@@ -5,17 +5,21 @@ usage: python tests/report.py
 import json
 import math
 import re
+import sys
 from pathlib import Path
 
 import numpy as np
 from transformers import AutoTokenizer
+
+sys.path.insert(0, "convert")
+from export_onnx import SRC  # noqa: E402
 
 SUITES = Path("export/tests/suites")
 RESULTS = Path("export/tests/results")
 RESULTS_ACC4 = Path("export/tests/results_acc4")  # earlier browser build (MatMulNBits accuracy_level 4)
 REPORT = Path("docs/VALIDATION.md")
 V = 131072
-tok = AutoTokenizer.from_pretrained("hf/Spark-X2.6-4B")
+tok = AutoTokenizer.from_pretrained(SRC)
 
 
 def sysdir(system):
@@ -23,6 +27,7 @@ def sysdir(system):
 
 
 LABELS = {"hf_bf16": "transformers bf16", "hf_fp32": "transformers fp32", "hf_int4": "transformers + official INT4 weights",
+          "hf_emb8": "transformers bf16, int8 embedding lookup (as in the build)",
           "ort_cpu_q4f16": "same ONNX graph, CPU onnxruntime", "browser_q4f16": "**browser q4f16 (shipped)**",
           "browser_q4": "browser q4 (fp32 activations)", "acc4/browser_q4f16": "browser q4f16, accuracy_level 4 (earlier build)",
           "acc4/browser_q4": "browser q4 fp32-act, accuracy_level 4 (earlier)",
@@ -216,7 +221,7 @@ def main():
     REPORT.parent.mkdir(exist_ok=True)
     systems = sorted(p.name for p in RESULTS.iterdir() if p.is_dir())
     systems += sorted("acc4/" + p.name for p in RESULTS_ACC4.iterdir() if p.is_dir()) if RESULTS_ACC4.exists() else []
-    out = ["# Spark-X2.6-4B browser build: validation report", ""]
+    out = [f"# {SRC.name} browser build: validation report", ""]
     info = RESULTS / "browser_q4f16/info.json"
     if info.exists():
         i = json.loads(info.read_text())

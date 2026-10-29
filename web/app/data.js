@@ -72,18 +72,18 @@ export const SYSTEMS = [
 ];
 
 export const ACCURACY = [
-  { name: "GSM8K", detail: "1,319 problems", n: 1319, bf16: 1198, int4: 1194, web: 1194 },
+  { name: "GSM8K", detail: "1,319 problems", n: 1319, bf16: 1198, int4: 1203, web: 1194 },
   { name: "BFCL v3 function calling", detail: "200 cases", n: 200, bf16: 178, int4: 179, web: 179 },
   { name: "Needle in a haystack", detail: "12 cases, 1k to 16k tokens", n: 12, bf16: 12, int4: 12, web: 12, count: true },
 ];
 
 // check, transformers bf16, transformers INT4, this build
 export const SUMMARY = [
-  ["GSM8K", "90.8%", "90.5%", "90.5%"],
+  ["GSM8K", "90.8%", "91.2%", "90.5%"],
   ["BFCL v3 function calling", "89.0%", "89.5%", "89.5%"],
   ["Needle in a haystack", "12/12", "12/12", "12/12"],
-  ["Next-token KL divergence to bf16", "0", "0.0235", "0.0238"],
-  ["Greedy parity, first token, 50 prompts", "50/50", "46/50", "46/50"],
+  ["Next-token KL divergence to bf16", "0", "0.0236", "0.0238"],
+  ["Greedy parity, first token, 50 prompts", "50/50", "47/50", "46/50"],
   ["Thinking, multi-turn and tool calls", "6/6", "", "8/8"],
   ["30-minute soak test", "", "", "0 errors"],
 ];
@@ -102,6 +102,6 @@ export const HISTORY = [
 export const FIGURES = [
   ["Decode speed", "90", "tok/s", "69 tok/s at 16k tokens of context"],
   ["First token", "92", "ms", "1.7 s for a 2,500-token prompt"],
-  ["GSM8K", "90.5", "%", "Official INT4 model: 90.5%"],
+  ["GSM8K", "90.5", "%", "Official INT4 model: 91.2%"],
   ["Download", "2.77", "GB", "Cached after the first visit"],
 ];

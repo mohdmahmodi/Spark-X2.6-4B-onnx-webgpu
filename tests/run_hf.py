@@ -4,7 +4,11 @@ Systems:
   hf_bf16   original weights, bf16 compute (the reference)
   hf_fp32   original weights, fp32 compute (noise floor of the reference itself)
   hf_int4   XHToken/Spark-X2.6-4B-INT4 weights (dequantized into the model), bf16 compute:
-            what the official INT4 checkpoint computes without activation quantization
+            what the official INT4 checkpoint computes without activation quantization. The checkpoint is untied:
+            the input embedding stays bf16 and only the LM head is int8, so the two are untied here as well.
+            (The ONNX build looks up the input embedding in the int8 LM-head table; tests/run_hf.py hf_emb8 measures
+            that alone on the bf16 model.)
+  hf_emb8   original bf16 model with only the input embedding replaced by the int8 LM-head table
 
 usage: python tests/run_hf.py SYSTEM SUITE [--batch 24]
   SUITE: parity | gsm8k | bfcl | niah | logits   (logits needs hf_bf16 parity results first)
@@ -36,12 +40,20 @@ def forced_tokens(ref_ids, n=8):
 def load(system):
     dtype = torch.float32 if system == "hf_fp32" else torch.bfloat16
     model = AutoModelForCausalLM.from_pretrained(SRC, trust_remote_code=True, dtype=dtype).cuda().eval()
-    if system == "hf_int4":
+    if system in ("hf_int4", "hf_emb8"):
         q = OfficialQuant(OFFICIAL)
         with torch.no_grad():
+            emb = model.model.embedding.weight
+            head8 = OfficialQuant.dequant(*q.get("lm_head", 32)[:3]).to(emb.device, emb.dtype)
+            if system == "hf_emb8":  # int8 table for the input lookup only, bf16 LM head
+                model.lm_head.weight = torch.nn.Parameter(emb.detach().clone())
+                emb.copy_(head8)
+                return model
+            model.lm_head.weight = torch.nn.Parameter(head8)  # int8 LM head, bf16 input embedding
             for name, p in model.named_parameters():
-                src = "lm_head" if name == "model.embedding.weight" else name[: -len(".weight")]
-                got = q.get(src, 32) if p.dim() == 2 else None
+                if p.dim() != 2 or name in ("model.embedding.weight", "lm_head.weight"):
+                    continue
+                got = q.get(name[: -len(".weight")], 32)
                 if got:
                     p.copy_(OfficialQuant.dequant(*got[:3]).to(p.device, p.dtype))
     return model
@@ -81,7 +93,7 @@ def greedy_batch(model, prompts, max_new):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("system", choices=["hf_bf16", "hf_fp32", "hf_int4"])
+    ap.add_argument("system", choices=["hf_bf16", "hf_fp32", "hf_int4", "hf_emb8"])
     ap.add_argument("suite")
     ap.add_argument("--batch", type=int, default=24)
     a = ap.parse_args()

@@ -13,8 +13,9 @@ to 4-bit ONNX and running entirely in the browser on WebGPU. No server, no insta
 |---|---|---|---|
 | [Spark-X2.6-4B](https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU) | ONNX, 4-bit weights (q4f16, q4) | onnxruntime-web, WebGPU | released, validated |
 
-- **Accurate.** Same scores as the official INT4 checkpoint in transformers: GSM8K 90.5%, BFCL function calling
-  89.5%, needle in a haystack 12/12. The build adds a mean KL divergence of 0.0003 on top of the quantization.
+- **Accurate.** No measurable loss against the official INT4 checkpoint in transformers: GSM8K 90.5% (INT4 91.2%,
+  bf16 90.8%), BFCL function calling 89.5%, needle in a haystack 12/12. The build adds a mean KL divergence of 0.00055
+  on top of the quantization.
 - **Fast.** About 90 tokens per second and a first token in under 100 ms on a desktop GPU. The KV cache never leaves the GPU.
 - **Complete.** Official chat template, thinking on/off with effort levels, multi-turn with prompt-cache reuse, and
   Spark tool calls.
@@ -71,13 +72,16 @@ exact 4-bit codes.
 
 | Check | transformers bf16 | transformers, official INT4 | This build |
 |---|---|---|---|
-| GSM8K, 1,319 problems, thinking off | 90.8% | 90.5% | 90.5% |
+| GSM8K, 1,319 problems, thinking off | 90.8% | 91.2% | 90.5% |
 | BFCL v3 simple function calling, 200 cases | 89.0% | 89.5% | 89.5% |
 | Needle in a haystack, 1k–16k tokens, 12 cases | 12/12 | 12/12 | 12/12 |
-| Next-token KL divergence to bf16, 160 positions | 0 | 0.0235 | 0.0238 |
-| Greedy parity, 50 prompts: first token identical | 50/50 | 46/50 | 46/50 |
+| Next-token KL divergence to bf16, 160 positions | 0 | 0.0236 | 0.0238 |
+| Greedy parity, 50 prompts: first token identical | 50/50 | 47/50 | 46/50 |
 | Thinking, multi-turn, tool-call round trip | 6/6 | | 8/8 |
 | 30-minute soak, 683 generations | | | 0 errors, flat GPU memory |
+
+On GSM8K the browser build solves 9 fewer problems than the INT4 checkpoint (22 and 13 disagreements, McNemar
+p = 0.18) and 4 fewer than bf16, which is within noise. The other checks score the same.
 
 ![Speed](model-card/assets/speed.png)
 
@@ -112,6 +116,10 @@ Design decisions, each measured before it was kept:
 - **Official quantization, repacked losslessly.** The GPTQ codes from
   [Spark-X2.6-4B-INT4](https://huggingface.co/XHToken/Spark-X2.6-4B-INT4) map directly onto `MatMulNBits` (4-bit,
   group size 32). Round-to-nearest 4-bit was tried first and is far less accurate on this model (mean KL 0.50 vs 0.21).
+- **One int8 table for the embedding and the LM head.** The official checkpoint keeps a separate bf16 input embedding
+  (640 MB). This build looks up input tokens in the int8 LM-head table instead, which saves that download. Measured on
+  its own in transformers, the swap costs nothing measurable: mean KL 0.0003 to bf16, GSM8K 1,197 vs 1,198, BFCL 175
+  vs 178 (p = 0.25).
 - **`accuracy_level=0`.** Level 4 lets WebGPU quantize activations to int8 during prefill. That cost 1.2 GSM8K points
   (89.3% vs 90.5%, p = 0.04). Level 0 is also faster at decode (88 vs 75 tok/s); prefill is about 45% slower.
 - **fp16 activations.** fp32-activation and fp32-residual builds score the same within noise; peak hidden-state

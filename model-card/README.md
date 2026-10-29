@@ -22,7 +22,7 @@ language:
 
 [XHToken/Spark-X2.6-4B](https://huggingface.co/XHToken/Spark-X2.6-4B) converted to ONNX for in-browser inference
 with [onnxruntime-web](https://onnxruntime.ai/docs/tutorials/web/) on WebGPU. It uses the official INT4 weights,
-repacked without loss, and scores the same as the official INT4 checkpoint run in transformers.
+repacked without loss, and shows no measurable accuracy loss against the official INT4 checkpoint run in transformers.
 
 - [Try it in your browser](https://huggingface.co/spaces/mohdmahmodi/Spark-X2.6-WebGPU)
 - [Source code and validation](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu)
@@ -39,7 +39,7 @@ repacked without loss, and scores the same as the official INT4 checkpoint run i
 ## Model quality
 
 As reported by XHToken for the original Spark-X2.6-4B, against models of similar size, with thinking on at high
-effort. This build runs the official INT4 weights of the same model; the checks below confirm it scores the same as
+effort. This build runs the official INT4 weights of the same model; the checks below compare it with
 that checkpoint.
 
 ![Model quality, reported by XHToken](assets/quality.png)
@@ -55,13 +55,14 @@ greedy decoding.
 
 | Check | transformers bf16 | transformers, official INT4 | This build |
 |---|---|---|---|
-| GSM8K, 1,319 problems, thinking off | 90.8% | 90.5% | 90.5% |
+| GSM8K, 1,319 problems, thinking off | 90.8% | 91.2% | 90.5% |
 | BFCL v3 simple function calling, 200 cases | 89.0% | 89.5% | 89.5% |
 | Needle in a haystack, 1k–16k tokens, 12 cases | 12/12 | 12/12 | 12/12 |
-| Next-token KL divergence to bf16, 160 positions | 0 | 0.0235 | 0.0238 |
-| Greedy parity, 50 prompts: first token identical | 50/50 | 46/50 | 46/50 |
+| Next-token KL divergence to bf16, 160 positions | 0 | 0.0236 | 0.0238 |
+| Greedy parity, 50 prompts: first token identical | 50/50 | 47/50 | 46/50 |
 
-On GSM8K the browser build and the INT4 run disagree on 13 problems in each direction (McNemar p = 1.0). Scores use
+On GSM8K the browser build solves 1,194 problems to the INT4 run's 1,203 and bf16's 1,198; against the INT4 run that is
+22 and 13 disagreements (McNemar p = 0.18), within noise. On BFCL they disagree on 2 and 2 cases (p = 1.00). Scores use
 thinking off and are not comparable to results measured with thinking on. Method and per-case results are in the
 [validation report](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu/blob/main/docs/VALIDATION.md).
 
@@ -86,7 +87,9 @@ External data is split into files under 1.9 GB so browsers can fetch them.
 ## Graph
 
 - **Weights.** Attention and MLP projections are 4-bit `MatMulNBits` with group size 32, taken directly from the
-  official GPTQ checkpoint. `out_proj`, the attention gate `g_proj` and the tied embedding / LM head are 8-bit.
+  official GPTQ checkpoint. `out_proj`, the attention gate `g_proj` and the LM head are 8-bit. Input tokens are looked
+  up in the same int8 table as the LM head; the official checkpoint keeps a separate bf16 input embedding, and the
+  swap measures as lossless (mean KL 0.0003 to bf16 in transformers, GSM8K 1,197 vs 1,198).
 - **Operators.** Fused `GroupQueryAttention` (sliding window 512 on 27 of 36 layers, per-layer-type rotary embedding
   including partial rotary), `SkipSimplifiedLayerNormalization`, `GatherBlockQuantized`. `MatMulNBits` uses
   `accuracy_level=0`, which keeps activations in floating point.

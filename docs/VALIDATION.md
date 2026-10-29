@@ -4,10 +4,10 @@
 
 | test | original (transformers) | browser build | pass |
 |---|---|---|---|
-| Logits in WebGPU: mean KL to bf16 (160 pos.) | INT4 weights in HF: 0.0235 | 0.0238 (adds 0.00030 vs INT4) | PASS |
-| Greedy parity: first token same (50 prompts) | INT4 weights in HF: 46/50 | 46/50 | PASS |
-| Greedy parity: mean tokens before divergence | INT4 weights in HF: 29.4 | 29.1 | PASS |
-| GSM8K | bf16 90.8%, INT4 weights 90.5% | 90.5% | PASS |
+| Logits in WebGPU: mean KL to bf16 (160 pos.) | INT4 weights in HF: 0.0236 | 0.0238 (adds 0.00055 vs INT4) | PASS |
+| Greedy parity: first token same (50 prompts) | INT4 weights in HF: 47/50 | 46/50 | PASS |
+| Greedy parity: mean tokens before divergence | INT4 weights in HF: 30.1 | 29.1 | PASS |
+| GSM8K | bf16 90.8%, INT4 weights 91.2% | 90.5% | PASS |
 | BFCL v3 simple function calling | bf16 89.0%, INT4 weights 89.5% | 89.5% | PASS |
 | Needle in a haystack | bf16 100.0%, INT4 weights 100.0% | 100.0% | PASS |
 | Features: thinking / multi-turn / tool calls | 6/6 | 8/8 | PASS |
@@ -21,13 +21,14 @@ Shipped build: `q4f16` on nvidia ampere (Chrome, WebGPU, static KV cache). All b
 
 | system | mean KL vs bf16 | p95 | max | top-1 vs bf16 | mean KL vs INT4 weights | top-1 vs INT4 |
 |---|---|---|---|---|---|---|
-| **browser q4f16 (shipped)** | 0.0238 | 0.1157 | 0.392 | 94.4% | 0.00030 | 99.4% |
-| transformers fp32 | 0.0001 | 0.0005 | 0.007 | 100.0% | 0.02516 | 95.0% |
-| transformers + official INT4 weights | 0.0235 | 0.1122 | 0.352 | 95.0% | 0.00000 | 100.0% |
-| same ONNX graph, CPU onnxruntime | 0.0240 | 0.1104 | 0.434 | 94.4% | 0.00022 | 99.4% |
-| browser q4 fp32-act, accuracy_level 4 (earlier) | 0.0246 | 0.1187 | 0.462 | 95.0% | 0.00120 | 98.8% |
-| browser q4f16, accuracy_level 4 (earlier build) | 0.0287 | 0.1139 | 0.416 | 95.6% | 0.00495 | 98.1% |
-| CPU onnxruntime, accuracy_level 4 (earlier) | 0.0229 | 0.1145 | 0.301 | 95.0% | 0.00055 | 98.8% |
+| **browser q4f16 (shipped)** | 0.0238 | 0.1157 | 0.392 | 94.4% | 0.00055 | 100.0% |
+| transformers bf16, int8 embedding lookup (as in the build) | 0.0003 | 0.0015 | 0.003 | 100.0% | 0.02562 | 94.4% |
+| transformers fp32 | 0.0001 | 0.0005 | 0.007 | 100.0% | 0.02501 | 94.4% |
+| transformers + official INT4 weights | 0.0236 | 0.1135 | 0.397 | 94.4% | 0.00000 | 100.0% |
+| same ONNX graph, CPU onnxruntime | 0.0240 | 0.1104 | 0.434 | 94.4% | 0.00028 | 100.0% |
+| browser q4 fp32-act, accuracy_level 4 (earlier) | 0.0246 | 0.1187 | 0.462 | 95.0% | 0.00115 | 98.1% |
+| browser q4f16, accuracy_level 4 (earlier build) | 0.0287 | 0.1139 | 0.416 | 95.6% | 0.00538 | 98.8% |
+| CPU onnxruntime, accuracy_level 4 (earlier) | 0.0229 | 0.1145 | 0.301 | 95.0% | 0.00064 | 99.4% |
 
 KL vs INT4 isolates what the ONNX/WebGPU build adds on top of the official quantization.
 
@@ -38,7 +39,7 @@ WebGPU kernels vs CPU kernels, same graph: mean KL 0.00016, max 0.0059, top-1 ag
 | system | first token same | identical 128-token outputs | mean tokens before divergence | median |
 |---|---|---|---|---|
 | **browser q4f16 (shipped)** | 46/50 | 9/50 | 29.1 | 22 |
-| transformers + official INT4 weights | 46/50 | 8/50 | 29.4 | 22 |
+| transformers + official INT4 weights | 47/50 | 9/50 | 30.1 | 22 |
 | same ONNX graph, CPU onnxruntime | 46/50 | 9/50 | 29.5 | 23 |
 | browser q4f16, accuracy_level 4 (earlier build) | 46/50 | 10/50 | 26.0 | 18 |
 | CPU onnxruntime, accuracy_level 4 (earlier) | 47/50 | 10/50 | 29.6 | 23 |
@@ -84,29 +85,31 @@ Browser, mean matched tokens by category: chat 20, code 37, math 39, zh 20, tool
 
 | system | score | vs INT4 weights: only-INT4-right / only-this-right, McNemar p |
 |---|---|---|
-| **browser q4f16 (shipped)** | 1194/1319 (90.5%) | 13 / 13, p = 1.00 |
-| transformers bf16 | 1198/1319 (90.8%) | 37 / 41, p = 0.73 |
-| transformers + official INT4 weights | 1194/1319 (90.5%) |  |
-| browser q4f16, accuracy_level 4 (earlier build) | 1178/1319 (89.3%) | 35 / 19, p = 0.04 |
+| **browser q4f16 (shipped)** | 1194/1319 (90.5%) | 22 / 13, p = 0.18 |
+| transformers bf16 | 1198/1319 (90.8%) | 48 / 43, p = 0.68 |
+| transformers bf16, int8 embedding lookup (as in the build) | 1197/1319 (90.8%) | 48 / 42, p = 0.60 |
+| transformers + official INT4 weights | 1203/1319 (91.2%) |  |
+| browser q4f16, accuracy_level 4 (earlier build) | 1178/1319 (89.3%) | 44 / 19, p = 0.00 |
 
 ## GSM8K, first 200 (diagnostic runs)
 
 | system | score | vs INT4 weights: only-INT4-right / only-this-right, McNemar p |
 |---|---|---|
-| transformers bf16 | 187/200 (93.5%) | 7 / 8, p = 1.00 |
-| transformers + official INT4 weights | 186/200 (93.0%) |  |
-| browser q4 fp32-act, accuracy_level 4 (earlier) | 183/200 (91.5%) | 5 / 2, p = 0.45 |
-| browser q4f16, accuracy_level 4 (earlier build) | 181/200 (90.5%) | 8 / 3, p = 0.23 |
-| browser q4f16 fp32-residual, acc. level 4 (earlier) | 182/200 (91.0%) | 7 / 3, p = 0.34 |
+| transformers bf16 | 187/200 (93.5%) | 7 / 9, p = 0.80 |
+| transformers + official INT4 weights | 185/200 (92.5%) |  |
+| browser q4 fp32-act, accuracy_level 4 (earlier) | 183/200 (91.5%) | 3 / 1, p = 0.62 |
+| browser q4f16, accuracy_level 4 (earlier build) | 181/200 (90.5%) | 8 / 4, p = 0.39 |
+| browser q4f16 fp32-residual, acc. level 4 (earlier) | 182/200 (91.0%) | 8 / 5, p = 0.58 |
 
 ## BFCL v3 simple function calling, first 200 (Spark tool format, SGLang spark25 parsing)
 
 | system | score | vs INT4 weights: only-INT4-right / only-this-right, McNemar p |
 |---|---|---|
-| **browser q4f16 (shipped)** | 179/200 (89.5%) | 1 / 1, p = 1.00 |
+| **browser q4f16 (shipped)** | 179/200 (89.5%) | 2 / 2, p = 1.00 |
 | transformers bf16 | 178/200 (89.0%) | 5 / 4, p = 1.00 |
+| transformers bf16, int8 embedding lookup (as in the build) | 175/200 (87.5%) | 8 / 4, p = 0.39 |
 | transformers + official INT4 weights | 179/200 (89.5%) |  |
-| browser q4f16, accuracy_level 4 (earlier build) | 179/200 (89.5%) | 4 / 4, p = 1.00 |
+| browser q4f16, accuracy_level 4 (earlier build) | 179/200 (89.5%) | 3 / 3, p = 1.00 |
 
 ## Needle in a haystack, 1k-16k tokens, needle at start/middle/end
 
@@ -144,6 +147,18 @@ Browser outputs:
 - **JS parser == Python parser**: `[{"name": "get_weather", "arguments": {"city": "Berlin", "unit": "celsius"}}]`
 - **answer uses tool result**: `The weather in Berlin right now is **18°C** with **light rain**.`
 - **KV prefix reuse == fresh prefill**: `reused 116 of 130 prompt tokens, 48/48 tokens identical, TTFT 149 -> 92 ms`
+
+## INT4 reference and the input embedding
+
+The official INT4 checkpoint is untied: its input embedding stays bf16 and only the LM head is int8. `hf_int4` loads it
+exactly that way. This build looks up input tokens in the int8 LM-head table instead (one tensor for both, saving a
+640 MB table); `hf_emb8` measures that change alone on the bf16 model: mean KL 0.0003 to bf16, GSM8K 1197 vs 1198
+(McNemar p = 1.00), BFCL 175 vs 178 (p = 0.25).
+
+An earlier version of this report loaded the INT4 reference with the int8 table for the input lookup too, as the build
+does. That reference scored 1194 on GSM8K and 179 on BFCL; loaded as published it scores 1203 and 179 (p = 0.15 between
+the two on GSM8K). The browser build's 1194 is within noise of both, and of bf16's 1198.
+
 
 ## Speed (RTX 3090 Ti, Chrome, q4f16, greedy, headless)
 
