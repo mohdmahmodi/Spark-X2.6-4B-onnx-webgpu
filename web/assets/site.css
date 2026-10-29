@@ -60,7 +60,7 @@ a:hover { text-decoration-color: currentColor; }
 .btn:hover { background: var(--text); color: var(--bg); }
 .btn-solid { background: var(--text); color: var(--bg); }
 .btn-solid:hover { background: transparent; color: var(--text); }
-.btn .icon { width: 15px; height: 15px; }
+.btn .icon { width: 16px; height: 16px; }
 
 /* hero */
 .hero { max-width: var(--wide); margin: 0 auto; padding: 120px 32px 0; }
@@ -68,7 +68,9 @@ a:hover { text-decoration-color: currentColor; }
 .hero h1 { margin-top: 18px; font-size: clamp(56px, 10vw, 128px); font-weight: 700; line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase; }
 .hero .tagline { margin-top: 18px; font-family: var(--display); font-size: clamp(18px, 2.2vw, 24px); font-weight: 500; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text); }
-.hero .lead { max-width: 46em; margin-top: 28px; font-size: 18px; line-height: 1.65; color: var(--text-2); }
+/* the copy block is as wide as the title; the lead paragraph fills that width instead of setting it */
+.hero-copy { width: fit-content; max-width: 100%; }
+.hero .lead { width: 0; min-width: 100%; margin-top: 28px; font-size: 18px; line-height: 1.65; color: var(--text-2); }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
 .byline { margin-top: 28px; font-family: var(--display); font-size: 13.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
 .byline a { color: var(--text-2); text-decoration: none; }
