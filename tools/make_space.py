@@ -1,10 +1,12 @@
-"""Build the Hugging Face Space (static, no build step) for the web app into release/space/.
+"""Build the static site (chat app and benchmarks page) into a folder that any static host can serve.
 
-The Space holds the app only (HTML, CSS, JavaScript, icons). The page loads the model from the model repository
+The folder holds the app only (HTML, CSS, JavaScript, icons). The page loads the model from the model repository
 (https://huggingface.co/<model>/resolve/main) and the browser keeps it in its Cache API.
 
 usage: python tools/make_space.py [--model mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU] [--out release/space]
-then:  hf upload <user>/<space> release/space . --repo-type space
+                                  [--site-url https://example.com/spark] [--no-space-card]
+then, for the Hugging Face Space:  hf upload <user>/<space> release/space . --repo-type space
+or copy the folder to any web server; every link inside it is relative.
 """
 import argparse
 import shutil
@@ -15,6 +17,7 @@ SKIP = {"spark"}  # local model build; the Space loads the model from the Hub
 TEXT = {".html", ".js", ".css", ".svg", ".txt"}
 DEFAULT_MODEL = "mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU"
 SOURCE = "https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu"
+DEFAULT_SITE = "https://mohdmahmodi-spark-x2-6-webgpu.static.hf.space"  # canonical and share links in the pages
 
 README = """---
 title: Spark-X2.6 WebGPU
@@ -52,6 +55,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--out", type=Path, default=Path("release/space"))
+    ap.add_argument("--site-url", default=DEFAULT_SITE, help="public URL of the folder, used for canonical and share links")
+    ap.add_argument("--no-space-card", action="store_true", help="skip the Hugging Face Space README")
     a = ap.parse_args()
     if a.out.exists():
         shutil.rmtree(a.out)
@@ -70,9 +75,10 @@ def main():
             old = f'<meta name="spark-model" content="./spark" data-fallback="https://huggingface.co/{DEFAULT_MODEL}/resolve/main" />'
             assert text.count(old) == 1, "model meta tag not found in index.html"
             text = text.replace(old, f'<meta name="spark-model" content="{base}" />')
-        text = text.replace(f"huggingface.co/{DEFAULT_MODEL}", f"huggingface.co/{a.model}")
+        text = text.replace(f"huggingface.co/{DEFAULT_MODEL}", f"huggingface.co/{a.model}").replace(DEFAULT_SITE, a.site_url.rstrip("/"))
         dst.write_text(text, encoding="utf-8", newline="\n")
-    (a.out / "README.md").write_text(README.format(model=a.model, source=SOURCE), encoding="utf-8", newline="\n")
+    if not a.no_space_card:
+        (a.out / "README.md").write_text(README.format(model=a.model, source=SOURCE), encoding="utf-8", newline="\n")
     print(f"wrote {a.out} (model: {base})")
 
 

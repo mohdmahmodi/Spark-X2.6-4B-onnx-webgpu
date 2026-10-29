@@ -23,11 +23,12 @@ await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: a.theme 
 
 if (a.only !== "chat") {
   // element id in benchmarks.html -> file name in model-card/assets/
-  const shots = [["social", "hero"], ["quality", "quality"], ["results", "results"], ["parity", "accuracy"], ["history", "speed"],
-    ["summary", "summary"]];
-  for (const [id, file] of shots) {
+  // the banner keeps the page's black theme; the charts use a light background, like most model cards
+  const shots = [["social", "hero", "dark"], ["quality", "quality", "light"], ["results", "results", "light"], ["parity", "accuracy", "light"],
+    ["history", "speed", "light"], ["summary", "summary", "light"]];
+  for (const [id, file, theme] of shots) {
     await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 2 });
-    await page.goto(`${a.url}benchmarks.html?shot=${id}`);
+    await page.goto(`${a.url}benchmarks.html?shot=${id}&theme=${theme}`);
     await page.waitForSelector("body[data-ready]");
     const node = await page.$(`#${id}`);
     await node.screenshot({ path: `${a.out}/${file}.png` });

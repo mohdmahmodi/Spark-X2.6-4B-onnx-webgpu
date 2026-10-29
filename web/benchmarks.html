@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
-    <title>Spark-X2.6-4B, now in your browser</title>
-    <meta name="description" content="Spark-X2.6-4B runs on WebGPU in Chrome and Edge as a 4-bit ONNX build. It matches the official INT4 model on every check and generates about 90 tokens per second on a desktop GPU." />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#000000" />
+    <title>Spark-X2.6-4B in the browser</title>
+    <meta name="description" content="Spark-X2.6-4B running on WebGPU in Chrome and Edge, using the official 4-bit weights. Benchmarks, speed and how to use it." />
     <link rel="canonical" href="https://mohdmahmodi-spark-x2-6-webgpu.static.hf.space/benchmarks.html" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="Spark-X2.6-4B, now in your browser" />
-    <meta property="og:description" content="A 4-bit WebGPU build of Spark-X2.6-4B that matches the official INT4 model, at about 90 tokens per second." />
+    <meta property="og:title" content="Spark-X2.6-4B in the browser" />
+    <meta property="og:description" content="Spark-X2.6-4B running on WebGPU with the official 4-bit weights, at about 90 tokens per second." />
     <meta property="og:image" content="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU/resolve/main/assets/hero.png" />
     <meta property="og:url" content="https://mohdmahmodi-spark-x2-6-webgpu.static.hf.space/benchmarks.html" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -17,7 +18,7 @@
     <meta name="author" content="Mohd Mahmodi" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
     <link rel="stylesheet" href="assets/base.css" />
     <link rel="stylesheet" href="assets/site.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
@@ -27,9 +28,9 @@
   <body>
     <div class="page">
       <section id="social" aria-hidden="true">
-        <div class="post-meta">Open weights, running on WebGPU</div>
-        <h1>Spark-X2.6-4B,<br />now in your browser</h1>
-        <p>Same scores as the official INT4 model, about 90 tokens per second, nothing to install.</p>
+        <div class="eyebrow">Open weights on WebGPU</div>
+        <h1>Spark-X2.6-4B</h1>
+        <div class="tagline">Running in your browser</div>
         <div class="key-numbers" data-figures></div>
       </section>
 
@@ -39,42 +40,40 @@
           <a class="hide-sm" href="#compare">Benchmarks</a>
           <a class="hide-sm" href="#speed">Speed</a>
           <a class="hide-sm" href="#start">Get started</a>
-          <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu">GitHub</a>
+          <a class="hide-sm" href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu">GitHub</a>
+          <a class="btn" href="./">Try it</a>
         </div>
       </nav>
 
+      <header class="hero">
+        <div class="eyebrow">October 29, 2026</div>
+        <h1>Spark-X2.6-4B</h1>
+        <div class="tagline">Running in your browser</div>
+        <p class="lead">
+          XHToken's 4B model, using its official 4-bit weights, running on the GPU in Chrome and Edge. In testing it scores the same as the
+          official INT4 release and generates about 90 tokens per second on a desktop GPU.
+        </p>
+        <div class="actions">
+          <a class="btn btn-solid" href="./">Try it in your browser</a>
+          <a class="btn" href="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU">Model files</a>
+          <a class="btn" href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu">Source</a>
+        </div>
+        <div class="byline">By <a href="https://x.com/mohdmahmodi">Mohd Mahmodi</a></div>
+      </header>
+
       <article class="article">
-        <header class="post-header">
-          <div class="post-meta">October 29, 2026</div>
-          <h1>Spark-X2.6-4B, now in your browser</h1>
-          <p class="dek">
-            A 4-bit build of XHToken's Spark-X2.6-4B that runs on WebGPU in Chrome and Edge. It matches the official INT4 model on every
-            check we ran and generates about 90 tokens per second on a desktop GPU.
-          </p>
-          <div class="byline">
-            <b>Mohd Mahmodi</b>
-            <a href="https://github.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#github" /></svg>mohdmahmodi</a>
-            <a href="https://x.com/mohdmahmodi"><svg class="icon"><use href="assets/icons.svg#brand-x" /></svg>@mohdmahmodi</a>
-          </div>
-          <div class="actions">
-            <a class="btn btn-primary" href="./">Try it in your browser<svg class="icon"><use href="assets/icons.svg#arrow-right" /></svg></a>
-            <a class="btn" href="https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU"><svg class="icon"><use href="assets/icons.svg#huggingface" /></svg>Model</a>
-            <a class="btn" href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu"><svg class="icon"><use href="assets/icons.svg#github" /></svg>Source</a>
-          </div>
-        </header>
 
         <figure class="figure-block wide">
           <img src="assets/chat-preview.png" width="2880" height="1800" alt="The chat app answering a coding question with thinking on" />
           <figcaption>The chat app answering a coding question with thinking on. Everything runs on the local GPU.</figcaption>
         </figure>
 
-        <div class="key-numbers" data-figures></div>
+        <div class="key-numbers wide" data-figures></div>
 
         <p>
-          Spark-X2.6-4B is a 4-billion-parameter model from XHToken, built for on-device agents: tool use, coding, long context, and
-          reasoning with a thinking budget you can turn up, down or off. This release packages the official INT4 checkpoint as ONNX for
-          onnxruntime-web, so the model runs in a browser tab with no server, no install and no account. Nothing typed into the page
-          leaves the device.
+          Spark-X2.6-4B is a 4-billion-parameter model from XHToken, aimed at on-device agents: tool use, coding and long context, with a
+          thinking budget that can be set to high, low or off. This build packages the official INT4 checkpoint as ONNX for
+          onnxruntime-web. The model runs inside a browser tab, and what you type stays on your machine.
         </p>
 
         <h2 id="compare">How Spark-X2.6-4B compares</h2>
@@ -100,9 +99,9 @@
 
         <h2 id="accuracy">The browser build scores the same</h2>
         <p>
-          Quantization and a new runtime can quietly change a model's answers. Every number below comes from the real web page driven by
-          headless Chrome, compared with the original model in transformers on the same prompts, chat template and greedy decoding, with
-          thinking off.
+          A different runtime and 4-bit weights can change a model's answers, so the browser build was tested against the original model in
+          transformers: same prompts, same chat template, greedy decoding, thinking off. Every browser number comes from the actual web page,
+          run in headless Chrome.
         </p>
         <figure class="figure-block wide" id="parity">
           <h2 class="shot-only shot-title">The browser build scores the same as the official model</h2>

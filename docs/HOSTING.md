@@ -42,6 +42,15 @@ hf upload <user>/Spark-X2.6-WebGPU release/space . --repo-type space
 The model repository must be public, because visitors' browsers download it without signing in. A static Space runs
 no server code; inference happens on each visitor's GPU.
 
+## Your own website
+
+```bash
+python tools/make_space.py --out release/site --site-url https://example.com/spark --no-space-card
+```
+
+Copy `release/site/` to that path on the server. Every link inside the folder is relative, the model still loads from
+the Hugging Face repository, and `--site-url` sets the canonical and share links of the pages.
+
 ## Other hosts
 
 Serve `web/` as the site root and either place the model folder at `web/spark/` or pass its URL with

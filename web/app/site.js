@@ -8,6 +8,9 @@ const $ = (id) => document.getElementById(id);
 const el = (tag, className, text) => Object.assign(document.createElement(tag), className ? { className } : {}, text != null ? { textContent: text } : {});
 const formatTokens = (n) => n.toLocaleString("en-US");
 const formatSeconds = (s) => (s < 1 ? `${Math.round(s * 1000)} ms` : `${s.toFixed(1)} s`);
+// the model-card images are rendered on a light background (tools/shots.mjs passes ?theme=light)
+if (new URLSearchParams(location.search).get("theme") === "light") document.body.classList.add("light");
+
 const legend = (items) => items.map(([name, color]) => `<span><i style="background: ${color}"></i>${name}</span>`).join("");
 
 // smallest round axis maximum above the data, with four or five ticks
