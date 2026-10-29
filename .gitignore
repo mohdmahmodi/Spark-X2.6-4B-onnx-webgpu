@@ -1,0 +1,11 @@
+# local checkpoints, conversion outputs and test results
+hf/
+export/
+release/
+web/spark/
+
+# environments and browser profiles used by the test tools
+.venv/
+node_modules/
+__pycache__/
+.chrome-*/

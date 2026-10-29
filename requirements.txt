@@ -1,0 +1,10 @@
+# Conversion (convert/) and validation (tests/). Versions used for the published build.
+# Install torch with CUDA from https://pytorch.org first if you want GPU references.
+torch==2.5.1
+transformers==4.57.6
+onnx==1.22.0
+onnxruntime==1.31.0
+safetensors==0.7.0
+numpy==2.2.6
+pandas==2.3.3
+huggingface_hub>=0.36

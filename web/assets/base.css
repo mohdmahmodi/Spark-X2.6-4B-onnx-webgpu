@@ -1,0 +1,65 @@
+/* Shared tokens, typography and code highlighting for the chat app and the benchmarks page. */
+
+:root {
+  --bg: #000;
+  --surface-1: #0d0d0d;
+  --surface-2: #171717;
+  --surface-3: #262626;
+  --line: #222;
+  --line-strong: #333;
+  --text: #ececec;
+  --text-2: #a3a3a3;
+  --text-3: #737373;
+  --ok: #4ade80;
+  --error: #f87171;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 var(--sans);
+  font-feature-settings: "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { opacity: 0.35; cursor: default; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 6px; }
+::selection { background: rgba(255, 255, 255, 0.2); }
+* { scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.icon { width: 16px; height: 16px; flex: none; }
+.icon-lg { width: 20px; height: 20px; flex: none; }
+code { font-family: var(--mono); font-size: 0.875em; }
+
+/* code blocks: Prism tokens tuned for dark surfaces */
+pre[class*="language-"], code[class*="language-"] { color: #d4d4d4; font-family: var(--mono); text-shadow: none; }
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6a6a6a; font-style: italic; }
+.token.punctuation { color: #8a8a8a; }
+.token.keyword, .token.important, .token.atrule, .token.rule { color: #c792ea; }
+.token.string, .token.char, .token.attr-value, .token.inserted, .token.regex { color: #a5d6a7; }
+.token.number, .token.boolean, .token.constant, .token.symbol { color: #f78c6c; }
+.token.function, .token.function-variable { color: #82aaff; }
+.token.class-name, .token.builtin, .token.tag { color: #ffcb6b; }
+.token.property, .token.attr-name, .token.selector { color: #89ddff; }
+.token.operator, .token.entity, .token.url, .token.variable { color: #d4d4d4; }
+.token.deleted { color: var(--error); }
+
+.code-block { margin: 16px 0; border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+.code-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 8px 16px; background: var(--surface-3);
+  font-size: 12px; color: var(--text-2); }
+.code-block pre { margin: 0; padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; background: none; }
+.code-block code { font-size: inherit; font-variant-ligatures: none; }
+.copy-btn { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 6px; background: transparent;
+  color: var(--text-2); font-size: 12px; }
+.copy-btn:hover { color: var(--text); }
+.copy-btn .icon { width: 14px; height: 14px; }
