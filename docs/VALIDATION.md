@@ -167,10 +167,17 @@ that were not available. WebGPU's defaults are 128 MiB per binding and 256 MiB p
   needs `maxBufferSize` of at least that. A smaller binding limit is fine: onnxruntime-web binds a larger buffer in
   several pieces. The loader used to also require the binding limit to fit the table, which rejected devices that
   can run the model.
-- **Activations.** For a long prompt the MLP intermediate `[S, 10240]` is the largest activation: 671 MB in fp32 at
-  16k tokens. With a 128 MiB binding limit, the q4 build returned all-zero output for the 16k prompts, without an
-  error. The loader now prefills in pieces that keep that activation within one binding (3,072 tokens for q4 and 6,400
-  for q4f16 at 128 MiB); the outputs above are from that. With this GPU's own limit (2 GiB per binding) the pieces are
+- **Activations.** With a 128 MiB binding limit and the whole prompt in one pass, the q4 build returned all-zero
+  output for the 16k prompts, without an error. The cause is in onnxruntime-web: its layer-norm kernels index their
+  buffers directly instead of through the accessor that spans the pieces of a split buffer, so their output is zero
+  past the first 128 MiB. The fp32 hidden state `[S, 2560]` passes 128 MiB at 13,108 tokens (fp16: 26,215). One-op
+  models with these shapes show it for `LayerNormalization`, `SimplifiedLayerNormalization`, `SkipLayerNormalization`
+  and `SkipSimplifiedLayerNormalization` in 1.31.0-dev.20260918; in 1.31.1 the first two are fixed and the Skip
+  variants are not. Reported as [microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755), with a fix for
+  the Skip variants in [#33760](https://github.com/microsoft/onnxruntime/pull/33760). `MatMulNBits` with the model's shapes and element-wise ops were correct with up to 5 pieces.
+  The loader now prefills in pieces that keep every activation, including the largest (the MLP intermediate
+  `[S, 10240]`), within one binding (3,072 tokens for q4 and 6,400 for q4f16 at 128 MiB); the outputs above are from
+  that. With this GPU's own limit (2 GiB per binding) the pieces are
   larger than the context limit, so nothing is split and the published results are unchanged (`browser_q4f16`
   rerun: 12/12 and 50/50 identical).
 

@@ -175,6 +175,20 @@ for await (const text of spark.generate(messages, { thinking: false })) {
   output.textContent += text;
 }</code></pre>
           </li>
+          <li>
+            <h3>Or use Transformers.js</h3>
+            <p>
+              The same files load in Transformers.js 4.3 with <code>dtype: "q4f16"</code>, with identical output. The loader above is faster at long
+              context, since it keeps the KV cache in one preallocated buffer.
+            </p>
+            <pre><code class="language-javascript">import { pipeline } from "@huggingface/transformers";
+
+const generator = await pipeline("text-generation", "mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU", { device: "webgpu", dtype: "q4f16" });
+const out = await generator([{ role: "user", content: "Hello!" }], {
+  max_new_tokens: 256, tokenizer_encode_kwargs: { enable_thinking: false },
+});
+console.log(out[0].generated_text.at(-1).content);</code></pre>
+          </li>
         </ol>
 
         <h2 id="built">How it is built</h2>
@@ -192,7 +206,7 @@ for await (const text of spark.generate(messages, { thinking: false })) {
 
         <h2 id="limits">Limitations</h2>
         <ul>
-          <li>It needs WebGPU on a desktop browser, about 3.5 GB of free GPU memory at 4k tokens of context, and GPU buffers of at least 336 MB. A lower storage-binding limit works, down to the 128 MB WebGPU default.</li>
+          <li>It needs WebGPU on a desktop browser, about 3.5 GB of free GPU memory at 4k tokens of context, and GPU buffers of at least 336 MB. A lower storage-binding limit works with the included loader, down to the 128 MB WebGPU default.</li>
           <li>The browser's WebAssembly (CPU) backend cannot run this graph: it has no kernel for the quantized embedding.</li>
           <li>Testing so far covers Windows with an NVIDIA RTX 3090 Ti. macOS, Android and other GPUs are untested.</li>
           <li>The comparison with other models is XHToken's, measured on the original model with thinking on. It was not re-run for this build. The <a href="https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu/blob/main/docs/VALIDATION.md">validation report</a> covers what was.</li>

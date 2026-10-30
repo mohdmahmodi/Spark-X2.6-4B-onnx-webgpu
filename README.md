@@ -1,5 +1,12 @@
 # Spark-X2.6-4B for WebGPU
 
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/mohdmahmodi/Spark-X2.6-WebGPU)
+[![Model on Hugging Face](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-md.svg)](https://huggingface.co/mohdmahmodi/Spark-X2.6-4B-ONNX-WebGPU)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Validation report](https://img.shields.io/badge/validation-report-brightgreen)](docs/VALIDATION.md)
+[![onnxruntime-web](https://img.shields.io/badge/onnxruntime--web-WebGPU-0078D4)](https://onnxruntime.ai/docs/tutorials/web/)
+[![Transformers.js](https://img.shields.io/badge/Transformers.js-4.3-FFD21E)](#with-transformersjs)
+
 ![Spark-X2.6-4B in the browser](model-card/assets/hero.png)
 
 [XHToken/Spark-X2.6-4B](https://huggingface.co/XHToken/Spark-X2.6-4B), the 4-billion-parameter Spark model, converted
@@ -47,7 +54,7 @@ repository.
 |---|---|
 | Browser | Chrome or Edge 113+ on desktop. GPUs without `shader-f16` get the fp32-activation build automatically |
 | GPU memory | about 3.5 GB at 4k tokens of context (2.77 GB weights + 0.6 GB KV cache per 4k tokens) |
-| GPU buffer size | `maxBufferSize` of at least 336 MB (the int8 embedding table). The storage-buffer binding limit can be lower: onnxruntime binds larger buffers in pieces, checked down to the 128 MB WebGPU default |
+| GPU buffer size | `maxBufferSize` of at least 336 MB (the int8 embedding table). The storage-buffer binding limit can be lower: onnxruntime binds larger buffers in pieces, checked down to the 128 MB WebGPU default with the included loader |
 | Runtime | WebGPU only in the browser. The WASM (CPU) backend of onnxruntime-web has no kernel for the quantized embedding (`GatherBlockQuantized`), so it cannot load this graph. The same files run with native onnxruntime on CPU (used in the validation). |
 
 URL options: `?model=<url>` loads the model folder from another location, `?variant=q4` forces the fp32-activation
@@ -132,7 +139,8 @@ Design decisions, each measured before it was kept:
 - **Memory.** Downloaded weight buffers are released after the session is created; the page holds about 30 MB of
   JavaScript heap after loading.
 - **onnxruntime-web 1.31 dev build.** 1.30.0 disables flash attention on sliding-window layers past 512 tokens of
-  context ([microsoft/onnxruntime#32462](https://github.com/microsoft/onnxruntime/pull/32462)).
+  context ([microsoft/onnxruntime#32462](https://github.com/microsoft/onnxruntime/pull/32462)). The app pins the
+  build it was validated with; the 1.31.1 release has not been validated here yet.
 
 ## Use it in your own page
 
@@ -188,6 +196,12 @@ step, so decoding slows down as the context grows. Same machine, same run:
 The Transformers.js column uses onnxruntime-web `1.31.0-dev.20260918`, the app's build. 16k-token prompts need that
 build or newer: Transformers.js 4.3.2 bundles an older one that fails on them. With the newer build swapped in, all 12
 needle tests up to 16k tokens pass with output identical to the app's.
+
+On a GPU with the 128 MiB default storage-buffer binding limit, as on many phones, use the included loader for long
+prompts. Transformers.js prefills a prompt in one pass, and onnxruntime-web's layer-norm kernels
+return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
+`q4` and 26,215 with `q4f16`. The included loader prefills in pieces and is not affected. Reported as
+[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix is [#33760](https://github.com/microsoft/onnxruntime/pull/33760).
 
 ## Repository layout
 

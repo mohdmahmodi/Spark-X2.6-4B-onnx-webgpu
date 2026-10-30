@@ -189,10 +189,10 @@ export async function loadSpark({ base = "./spark", variant, staticKV = true, on
   const emptyKV = () =>
     new ort.Tensor(kvType, kvType === "float16" ? new Uint16Array(0) : new Float32Array(0), [1, meta.kv_heads, 0, meta.head_dim]);
   const eos = new Set([gen.eos_token_id ?? meta.eos_token_id].flat());
-  // The largest activation of a prefill is the MLP intermediate, [S, intermediate_size]. Where a long prompt would
-  // make it larger than one storage binding (phones report 128 MiB), the prompt goes in pieces that fit: split
-  // bindings returned zeros for the 671 MB fp32 intermediate of a 16k prompt. With a 2 GB binding limit (Windows
-  // desktops) a prompt is never split.
+  // A long prompt goes in pieces small enough that every prefill activation fits one storage binding (phones report
+  // 128 MiB); the largest is the MLP intermediate, [S, intermediate_size]. onnxruntime-web's (Skip)LayerNorm kernels
+  // only reach the first binding of a split buffer, so without pieces the fp32 hidden state of a 16k prompt (168 MB)
+  // came out as zeros, without an error. With a 2 GB binding limit (Windows desktops) a prompt is never split.
   const actBytes = (meta.intermediate_size ?? 0) * (kvType === "float16" ? 2 : 4);
   const prefillChunk = actBytes ? Math.max(256, Math.floor(gpu.maxBinding / actBytes / 256) * 256) : Infinity;
   const device = await ort.env.webgpu.device;

@@ -19,6 +19,10 @@ language:
 
 # Spark-X2.6-4B ONNX for WebGPU
 
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/mohdmahmodi/Spark-X2.6-WebGPU)
+[![Source on GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)
+
 ![Spark-X2.6-4B in the browser](assets/hero.png)
 
 [XHToken/Spark-X2.6-4B](https://huggingface.co/XHToken/Spark-X2.6-4B) converted to ONNX for in-browser inference
@@ -129,6 +133,12 @@ In one run on the same machine:
 The Transformers.js column uses onnxruntime-web `1.31.0-dev.20260918`. Prompts of 16k tokens need that build or newer:
 Transformers.js 4.3.2 bundles an older one that fails on them.
 
+On a GPU with the 128 MiB default storage-buffer binding limit, as on many phones, use the loader below for long
+prompts. Transformers.js prefills a prompt in one pass, and onnxruntime-web's layer-norm kernels
+return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
+`q4` and 26,215 with `q4f16`. That loader prefills in pieces and is not affected. Reported as
+[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix is [#33760](https://github.com/microsoft/onnxruntime/pull/33760).
+
 ### Included loader
 
 The loader in the [source repository](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu) keeps the KV cache in
@@ -146,7 +156,7 @@ for await (const piece of spark.generate([{ role: "user", content: "Hello!" }], 
 
 - Desktop Chrome or Edge with WebGPU, about 3.5 GB of free GPU memory at 4k tokens of context, and a WebGPU
   `maxBufferSize` of at least 336 MB. A lower storage-buffer binding limit works: onnxruntime binds larger buffers in
-  pieces (checked down to the 128 MB default, with identical outputs).
+  pieces (checked down to the 128 MB default with the loader below, with identical outputs).
 - Tested on Windows 11 with an RTX 3090 Ti only.
 - The WASM (CPU) backend of onnxruntime-web cannot load the graph: it has no kernel for `GatherBlockQuantized`.
 - Two tabs of the app in one Chrome instance can cause a "device lost" error on Windows; use one tab.
