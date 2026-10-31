@@ -6,6 +6,7 @@
 [![Validation report](https://img.shields.io/badge/validation-report-brightgreen)](docs/VALIDATION.md)
 [![onnxruntime-web](https://img.shields.io/badge/onnxruntime--web-WebGPU-0078D4)](https://onnxruntime.ai/docs/tutorials/web/)
 [![Transformers.js](https://img.shields.io/badge/Transformers.js-4.3-FFD21E)](#with-transformersjs)
+[![onnxruntime #33760 merged](https://img.shields.io/badge/onnxruntime-%2333760%20merged-8250DF)](https://github.com/microsoft/onnxruntime/pull/33760)
 
 ![Spark-X2.6-4B in the browser](model-card/assets/hero.png)
 
@@ -198,10 +199,11 @@ build or newer: Transformers.js 4.3.2 bundles an older one that fails on them. W
 needle tests up to 16k tokens pass with output identical to the app's.
 
 On a GPU with the 128 MiB default storage-buffer binding limit, as on many phones, use the included loader for long
-prompts. Transformers.js prefills a prompt in one pass, and onnxruntime-web's layer-norm kernels
-return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
+prompts. Transformers.js prefills a prompt in one pass, and the layer-norm kernels in onnxruntime-web 1.31.1 and
+earlier return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
 `q4` and 26,215 with `q4f16`. The included loader prefills in pieces and is not affected. Reported as
-[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix is [#33760](https://github.com/microsoft/onnxruntime/pull/33760).
+[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix, [#33760](https://github.com/microsoft/onnxruntime/pull/33760), is merged and
+will ship in onnxruntime-web 1.32.
 
 ## Repository layout
 
@@ -258,6 +260,9 @@ Hosting your own copy of the app or model: [docs/HOSTING.md](docs/HOSTING.md).
 ## Author
 
 Mohd Mahmodi, [GitHub](https://github.com/mohdmahmodi) and [X (@mohdmahmodi)](https://x.com/mohdmahmodi).
+
+Upstream fix from this work: [microsoft/onnxruntime#33760](https://github.com/microsoft/onnxruntime/pull/33760), a WebGPU layer-norm bug found while
+validating these builds, merged on October 31, 2026.
 
 ## License
 

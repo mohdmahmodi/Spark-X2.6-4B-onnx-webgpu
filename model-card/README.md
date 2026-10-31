@@ -22,6 +22,7 @@ language:
 [![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/mohdmahmodi/Spark-X2.6-WebGPU)
 [![Source on GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/mohdmahmodi/Spark-X2.6-4B-onnx-webgpu)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)
+[![onnxruntime #33760 merged](https://img.shields.io/badge/onnxruntime-%2333760%20merged-8250DF)](https://github.com/microsoft/onnxruntime/pull/33760)
 
 ![Spark-X2.6-4B in the browser](assets/hero.png)
 
@@ -134,10 +135,11 @@ The Transformers.js column uses onnxruntime-web `1.31.0-dev.20260918`. Prompts o
 Transformers.js 4.3.2 bundles an older one that fails on them.
 
 On a GPU with the 128 MiB default storage-buffer binding limit, as on many phones, use the loader below for long
-prompts. Transformers.js prefills a prompt in one pass, and onnxruntime-web's layer-norm kernels
-return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
+prompts. Transformers.js prefills a prompt in one pass, and the layer-norm kernels in onnxruntime-web 1.31.1 and
+earlier return zeros once the hidden state is larger than one binding, without an error: from 13,108 tokens with
 `q4` and 26,215 with `q4f16`. That loader prefills in pieces and is not affected. Reported as
-[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix is [#33760](https://github.com/microsoft/onnxruntime/pull/33760).
+[microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755); the fix, [#33760](https://github.com/microsoft/onnxruntime/pull/33760), is merged and
+will ship in onnxruntime-web 1.32.
 
 ### Included loader
 
@@ -166,4 +168,5 @@ for await (const piece of spark.generate([{ role: "user", content: "Hello!" }], 
 Apache-2.0, the same as the base model. Spark-X2.6-4B is developed by XHToken; this repository contains a format
 conversion of their released weights.
 
-Converted and validated by Mohd Mahmodi ([GitHub](https://github.com/mohdmahmodi), [X](https://x.com/mohdmahmodi)).
+Converted and validated by Mohd Mahmodi ([GitHub](https://github.com/mohdmahmodi), [X](https://x.com/mohdmahmodi)),
+who also fixed the WebGPU layer-norm bug described above in onnxruntime ([#33760](https://github.com/microsoft/onnxruntime/pull/33760)).

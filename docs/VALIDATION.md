@@ -173,8 +173,8 @@ that were not available. WebGPU's defaults are 128 MiB per binding and 256 MiB p
   past the first 128 MiB. The fp32 hidden state `[S, 2560]` passes 128 MiB at 13,108 tokens (fp16: 26,215). One-op
   models with these shapes show it for `LayerNormalization`, `SimplifiedLayerNormalization`, `SkipLayerNormalization`
   and `SkipSimplifiedLayerNormalization` in 1.31.0-dev.20260918; in 1.31.1 the first two are fixed and the Skip
-  variants are not. Reported as [microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755), with a fix for
-  the Skip variants in [#33760](https://github.com/microsoft/onnxruntime/pull/33760). `MatMulNBits` with the model's shapes and element-wise ops were correct with up to 5 pieces.
+  variants are not. Reported as [microsoft/onnxruntime#33755](https://github.com/microsoft/onnxruntime/issues/33755), and the Skip
+  variants are fixed by [#33760](https://github.com/microsoft/onnxruntime/pull/33760), merged on 2026-10-31 for onnxruntime 1.32 and not in a release yet. `MatMulNBits` with the model's shapes and element-wise ops were correct with up to 5 pieces.
   The loader now prefills in pieces that keep every activation, including the largest (the MLP intermediate
   `[S, 10240]`), within one binding (3,072 tokens for q4 and 6,400 for q4f16 at 128 MiB); the outputs above are from
   that. With this GPU's own limit (2 GiB per binding) the pieces are
